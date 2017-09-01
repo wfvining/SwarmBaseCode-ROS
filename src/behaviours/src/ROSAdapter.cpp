@@ -24,8 +24,10 @@
 
 // Include Controllers
 #include "LogicController.h"
-#include <vector>
 
+#include "LocationPreprocessor.h"
+
+#include <vector>
 #include "Point.h"
 #include "TagPoint.h"
 
@@ -62,8 +64,9 @@ class ROSAdapterRangeShapeInvalidTypeException : public std::exception {
 random_numbers::RandomNumberGenerator* rng;
 
 // Create logic controller
-
 LogicController logicController;
+
+LocationPreprocessor locationPreprocessor;
 
 void humanTime();
 
@@ -248,7 +251,7 @@ void behaviourStateMachine(const ros::TimerEvent&) {
     if (timerTimeElapsed > startDelayInSeconds) {
       // initialization has run
       initilized = true;
-      //TODO: this just sets center to 0 over and over and needs to change
+
       Point centerOdom;
       centerOdom.x = 1 * cos(currentLocation.theta);
       centerOdom.y = 1 * sin(currentLocation.theta);
@@ -262,12 +265,11 @@ void behaviourStateMachine(const ros::TimerEvent&) {
       logicController.SetCenterLocationMap(centerMap);
 
       startTime = getROSTimeInMilliSecs();
+
     } else {
       return;
     }
-
   }
-
 
   // Robot is in automode
   if (currentMode == 2 || currentMode == 3) {
