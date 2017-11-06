@@ -103,6 +103,11 @@ Result DriveController::DoWork()
     else
     {
       stateMachineState = STATE_MACHINE_ROTATE;
+      waypoints.back().theta = atan2(waypoints.back().y - currentLocation.y, waypoints.back().x - currentLocation.x);
+      result.pd.setPointYaw = waypoints.back().theta;
+      
+      cout << "**************************************************************************" << endl;
+      cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << endl;
       //fall through on purpose
     }
   }
@@ -119,11 +124,9 @@ Result DriveController::DoWork()
     // Calculate the diffrence between current and desired heading in radians.
     float errorYaw = angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta);
 
-    cout << "ROTATING, ERROR:  " << errorYaw << endl;
+    cout << "Rotate, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << endl;
 
     result.pd.setPointVel = 0.0;
-    result.pd.setPointYaw = waypoints.back().theta;
-
     //Calculate absolute value of angle
 
     float abs_error = fabs(angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta));
@@ -135,39 +138,12 @@ Result DriveController::DoWork()
       if (result.PIDMode == FAST_PID)
       {
         fastPID(0.0, errorYaw, result.pd.setPointVel, result.pd.setPointYaw);
-
-        const int MIN_TURN_VALUE = 80;
-
-        //If wheels get a value less than 80, will cause robot to sit in place
-        if(fabs(left) < MIN_TURN_VALUE && fabs(right) < MIN_TURN_VALUE)
-        {
-            //increase left and right values to minimum value, checking signs for negative or positive value
-            if(this->left < 0)
-            {
-              this->left = MIN_TURN_VALUE * -1;
-            }
-            else
-            {
-              this->left = MIN_TURN_VALUE;
-            }
-
-            if(this->right < 0)
-            {
-              this->right = MIN_TURN_VALUE * -1;
-            }
-            else
-            {
-              this->right = MIN_TURN_VALUE;
-            }
-        }
       }
-
 
       break;
     }
     else
     {
-
       //move to differential drive step
       stateMachineState = STATE_MACHINE_SKID_STEER;
 
@@ -182,30 +158,21 @@ Result DriveController::DoWork()
       // Stay in this state until angle is at least PI/2
 
     // calculate the distance between current and desired heading in radians
+    waypoints.back().theta = atan2(waypoints.back().y - currentLocation.y, waypoints.back().x - currentLocation.x);
     float errorYaw = angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta);
+    float distance = hypot(waypoints.back().x - currentLocation.x, waypoints.back().y - currentLocation.y);
+    
+    cout << "Skid steer, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << " error distance : " << distance << endl;
 
-    result.pd.setPointYaw = waypoints.back().theta;
 
     // goal not yet reached drive while maintaining proper heading.
-    if (fabs(angles::shortest_angular_distance(currentLocation.theta, atan2(waypoints.back().y - currentLocation.y, waypoints.back().x - currentLocation.x))) < M_PI_2
-        && hypot(waypoints.back().x - currentLocation.x, waypoints.back().y - currentLocation.y) > waypointTolerance)
+    if (fabs(errorYaw) < M_PI_2 &&  distance > waypointTolerance)
     {
       // drive and turn simultaniously
       result.pd.setPointVel = searchVelocity;
       if (result.PIDMode == FAST_PID)
       {
-        fastPID(searchVelocity - linearVelocity,errorYaw, result.pd.setPointVel, result.pd.setPointYaw);
-      }
-    }
-    // goal is reached but desired heading is still wrong turn only
-    else if (fabs(angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta)) > finalRotationTolerance
-       && hypot(waypoints.back().x - currentLocation.x, waypoints.back().y - currentLocation.y) > waypointTolerance)
-    {
-      // rotate but dont drive
-      result.pd.setPointVel = 0.0;
-      if (result.PIDMode == FAST_PID)
-      {
-        fastPID(0.0,errorYaw, result.pd.setPointVel, result.pd.setPointYaw);
+        fastPID(searchVelocity ,errorYaw, result.pd.setPointVel, result.pd.setPointYaw);
       }
     }
     else {
