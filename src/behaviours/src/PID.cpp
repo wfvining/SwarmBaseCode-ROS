@@ -32,7 +32,7 @@ float PID::PIDOut(float calculatedError, float setPoint)
 
   //feed forward
   //float FF = config.feedForwardMultiplier * setPoint;
-    float FF = (pow(setPoint, 2) * config.feedForwardMultiplier) + (setPoint * (config.feedForwardMultiplier / -7)) ;
+    float FF = (pow(setPoint, 3) * config.feedForwardMultiplier) + (setPoint * (config.feedForwardMultiplier / 4.6)) ;
 
 
   //error averager
@@ -107,7 +107,7 @@ float PID::PIDOut(float calculatedError, float setPoint)
   }
 
   //Derivative
-  if (fabs(P) < config.antiWindup)
+  if (1)//(fabs(P) < config.antiWindup)
   {
     float avgPrevError = 0;
     for (int i = 1; i < Error.size(); i++)
@@ -123,7 +123,7 @@ float PID::PIDOut(float calculatedError, float setPoint)
       avgPrevError = Error[0];
     }
 
-    D = config.Kd * (Error[0] - Error[1]) * hz;
+    D = config.Kd * ((Error[0]+Error[1])/2 - (Error[2]+Error[3])/2) * hz;
   }
 
   float PIDOut = P + I + D + FF;

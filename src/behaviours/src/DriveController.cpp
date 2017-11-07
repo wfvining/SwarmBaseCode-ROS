@@ -124,7 +124,7 @@ Result DriveController::DoWork()
     // Calculate the diffrence between current and desired heading in radians.
     float errorYaw = angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta);
 
-    //cout << "Rotate, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << endl;
+    cout << "Rotate, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << endl;
     //cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
 
     result.pd.setPointVel = 0.0;
@@ -163,7 +163,7 @@ Result DriveController::DoWork()
     float errorYaw = angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta);
     float distance = hypot(waypoints.back().x - currentLocation.x, waypoints.back().y - currentLocation.y);
     
-    //cout << "Skid steer, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << " error distance : " << distance << endl;
+    cout << "Skid steer, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << " error distance : " << distance << endl;
     //cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
 
 
@@ -175,7 +175,7 @@ Result DriveController::DoWork()
       result.pd.setPointVel = searchVelocity;
       if (result.PIDMode == FAST_PID)
       {
-        cout << "linear velocity:  " << linearVelocity << endl;
+        //cout << "linear velocity:  " << linearVelocity << endl;
         fastPID((searchVelocity-linearVelocity) ,errorYaw, result.pd.setPointVel, result.pd.setPointYaw);
       }
     }
@@ -266,8 +266,8 @@ void DriveController::ProcessData()
 void DriveController::fastPID(float errorVel, float errorYaw , float setPointVel, float setPointYaw)
 {
 
-  float velOut = fastVelPID.PIDOut(errorVel, setPointVel);
-  float yawOut = 0;//fastYawPID.PIDOut(errorYaw, setPointYaw);
+  float velOut = 0;//fastVelPID.PIDOut(errorVel, setPointVel);
+  float yawOut = fastYawPID.PIDOut(errorYaw, setPointYaw);
 
   int left = velOut - yawOut;
   int right = velOut + yawOut;
@@ -331,7 +331,7 @@ PIDConfig DriveController::fastVelConfig() {
   PIDConfig config;
 
   config.Kp = 60;
-  config.Ki = 5;
+  config.Ki = 10;
   config.Kd = 1.2;
   config.satUpper = 255;
   config.satLower = -255;
@@ -339,7 +339,7 @@ PIDConfig DriveController::fastVelConfig() {
   config.errorHistLength = 4;
   config.alwaysIntegral = true;
   config.resetOnSetpoint = true;
-  config.feedForwardMultiplier = 750; //gives 127 pwm at 0.4 commandedspeed  ORIG:320
+  config.feedForwardMultiplier = 610; //gives 127 pwm at 0.4 commandedspeed  ORIG:320
   config.integralDeadZone = 0.01;
   config.integralErrorHistoryLength = 10000;
   config.integralMax = config.satUpper/2;
@@ -352,19 +352,19 @@ PIDConfig DriveController::fastVelConfig() {
 PIDConfig DriveController::fastYawConfig() {
   PIDConfig config;
 
-  config.Kp = 80;
+  config.Kp = 120;
   config.Ki = 15;
   config.Kd = 8;
   config.satUpper = 255;
   config.satLower = -255;
-  config.antiWindup = config.satUpper/2;
+  config.antiWindup = config.satUpper/3;
   config.errorHistLength = 4;
   config.alwaysIntegral = false;
   config.resetOnSetpoint = true;
   config.feedForwardMultiplier = 0;
   config.integralDeadZone = 0.01;
   config.integralErrorHistoryLength = 10000;
-  config.integralMax = config.satUpper/2;
+  config.integralMax = config.satUpper/3;
   config.derivativeAlpha = 0.7;
 
   return config;
