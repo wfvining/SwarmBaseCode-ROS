@@ -31,7 +31,9 @@ float PID::PIDOut(float calculatedError, float setPoint)
   }
 
   //feed forward
-  float FF = config.feedForwardMultiplier * setPoint;
+  //float FF = config.feedForwardMultiplier * setPoint;
+    float FF = (pow(setPoint, 2) * config.feedForwardMultiplier) + (setPoint * (config.feedForwardMultiplier / -7)) ;
+
 
   //error averager
   float avgError = 0;
@@ -126,6 +128,8 @@ float PID::PIDOut(float calculatedError, float setPoint)
 
   float PIDOut = P + I + D + FF;
 
+  cout << "P:  " << P << ",  I:  " << I << ", D:  " << D << ", FF:  " << FF << endl;
+
   if (PIDOut > config.satUpper) //cap vel command
   {
     PIDOut = config.satUpper;
@@ -134,8 +138,6 @@ float PID::PIDOut(float calculatedError, float setPoint)
   {
     PIDOut = config.satLower;
   }
-
-  cout << "PID OUTPUT:  " << PIDOut << endl;
 
   return PIDOut;
 }

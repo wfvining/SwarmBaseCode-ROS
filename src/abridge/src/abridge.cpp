@@ -149,23 +149,16 @@ void driveCommandHandler(const geometry_msgs::Twist::ConstPtr& message) {
   float right = (message->angular.z); //angular error in radians
   
   ///TODO: replace below with a variable motor step size based upon a delta time.
-  if (mode == 1)
-  {
-      max_motor_step = 15;
-  }
-  else
-  {
-      max_motor_step = 75;
-  }
+  max_motor_step = 75;
 
   //steps the motor power up or down by a max ammount per tick, this prevents commanding a speed change that is too large at any one time step
   //this prevents or limits the potential for overcurrent situations.
-  if(abs(prev_left - left) > max_motor_step)
+  if(abs(prev_left - left) > max_motor_step && left != 0)
   {
     left = prev_left + max_motor_step * ((left - prev_left)/abs(left-prev_left));
   }
   
-  if(abs(prev_right - right) > max_motor_step)
+  if(abs(prev_right - right) > max_motor_step && right != 0)
   {
     right = prev_right + max_motor_step * ((right - prev_right)/abs(right-prev_right));
   }

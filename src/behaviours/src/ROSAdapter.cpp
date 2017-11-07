@@ -109,7 +109,7 @@ long int startTime = 0;
 float minutesTime = 0;
 float hoursTime = 0;
 
-float drift_tolerance = 1.2; // meters
+float drift_tolerance = 5.0; // meters
 
 Result result;
 

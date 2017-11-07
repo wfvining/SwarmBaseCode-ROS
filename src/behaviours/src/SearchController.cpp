@@ -1,7 +1,8 @@
 #include "SearchController.h"
 #include <angles/angles.h>
 
-SearchController::SearchController() {
+SearchController::SearchController()
+{
   rng = new random_numbers::RandomNumberGenerator();
   currentLocation.x = 0;
   currentLocation.y = 0;
@@ -16,16 +17,19 @@ SearchController::SearchController() {
   result.wristAngle = M_PI/4;
 }
 
-void SearchController::Reset() {
+void SearchController::Reset()
+{
   result.reset = false;
 }
 
 /**
  * This code implements a basic random walk search.
  */
-Result SearchController::DoWork() {
+Result SearchController::DoWork()
+{
 
-  if (!result.wpts.waypoints.empty()) {
+  if (!result.wpts.waypoints.empty())
+  {
     if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.10) {
       attemptCount = 0;
     }
@@ -51,8 +55,8 @@ Result SearchController::DoWork() {
     if (first_waypoint)
     {
       first_waypoint = false;
-      searchLocation.theta = currentLocation.theta + M_PI;
-      searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
+      searchLocation.theta = currentLocation.theta;
+      searchLocation.x = currentLocation.x + (1000 * cos(searchLocation.theta));
       searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
     }
     else
