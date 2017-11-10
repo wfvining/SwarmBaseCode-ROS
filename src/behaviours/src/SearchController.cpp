@@ -54,17 +54,17 @@ Result SearchController::DoWork()
     //select new position 50 cm from current location
     if (first_waypoint)
     {
-      first_waypoint = false;
-      searchLocation.theta = currentLocation.theta;
-      searchLocation.x = currentLocation.x + (1000 * cos(searchLocation.theta));
-      searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
+//      first_waypoint = false;
+      searchLocation.theta = M_PI_2;//currentLocation.theta;
+      searchLocation.x = 1000;//currentLocation.x + (1000 * cos(searchLocation.theta));
+      searchLocation.y = 0;//currentLocation.y; + (0.5 * sin(searchLocation.theta));
     }
     else
     {
       //select new heading from Gaussian distribution around current heading
-      searchLocation.theta = rng->gaussian(currentLocation.theta, 0.785398); //45 degrees in radians
-      searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
-      searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
+      //searchLocation.theta = rng->gaussian(currentLocation.theta, 0.785398); //45 degrees in radians
+      //searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
+      //searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
     }
 
     result.wpts.waypoints.clear();

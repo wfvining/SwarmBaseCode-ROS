@@ -124,7 +124,7 @@ Result DriveController::DoWork()
     // Calculate the diffrence between current and desired heading in radians.
     float errorYaw = angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta);
 
-    cout << "Rotate, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << endl;
+    cout << "ROTATE Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << endl;
     //cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
 
     result.pd.setPointVel = 0.0;
@@ -163,7 +163,7 @@ Result DriveController::DoWork()
     float errorYaw = angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta);
     float distance = hypot(waypoints.back().x - currentLocation.x, waypoints.back().y - currentLocation.y);
     
-    cout << "Skid steer, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << " error distance : " << distance << endl;
+    //cout << "Skid steer, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << " error distance : " << distance << endl;
     //cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
 
 
@@ -332,7 +332,7 @@ PIDConfig DriveController::fastVelConfig() {
 
   config.Kp = 60;
   config.Ki = 10;
-  config.Kd = 1.2;
+  config.Kd = 2;
   config.satUpper = 255;
   config.satLower = -255;
   config.antiWindup = config.satUpper;
@@ -352,9 +352,9 @@ PIDConfig DriveController::fastVelConfig() {
 PIDConfig DriveController::fastYawConfig() {
   PIDConfig config;
 
-  config.Kp = 120;
-  config.Ki = 15;
-  config.Kd = 8;
+  config.Kp = 200;
+  config.Ki = 10;
+  config.Kd = 1.35;
   config.satUpper = 255;
   config.satLower = -255;
   config.antiWindup = config.satUpper/3;
