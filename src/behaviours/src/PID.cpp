@@ -32,7 +32,25 @@ float PID::PIDOut(float calculatedError, float setPoint)
 
   //feed forward
   //float FF = config.feedForwardMultiplier * setPoint;
-    float FF = (pow(setPoint, 3) * config.feedForwardMultiplier) + (setPoint * (config.feedForwardMultiplier / 4.6)) ;
+    float FF = (pow(setPoint, 3) * config.feedForwardMultiplier) + (setPoint * (config.feedForwardMultiplier / 4.6));
+
+    if (!config.alwaysIntegral && Error[1])
+    {
+        //check the change of sign to see if the rover overshot its goal
+        float sign_change = Error[0] / Error[1];
+        //if the sign has changed between the previous error and the current error
+        if(sign_change < 0)
+        {
+            //reset the integral history and values
+            integralErrorHistArray.clear();
+            integralErrorHistArray.resize(config.integralErrorHistoryLength, 0.0);
+            I = 0;
+            step = 0;
+            //clear the error history in order to prevent movement in the incorrect direction because of the sign change
+            Error.clear();
+        }
+    }
+
 
 
   //error averager

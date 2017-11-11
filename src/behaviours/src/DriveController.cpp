@@ -124,7 +124,7 @@ Result DriveController::DoWork()
     // Calculate the diffrence between current and desired heading in radians.
     float errorYaw = angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta);
 
-    cout << "ROTATE Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << endl;
+    //cout << "ROTATE Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << endl;
     //cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
 
     result.pd.setPointVel = 0.0;
@@ -243,20 +243,26 @@ void DriveController::ProcessData()
   else if (result.type == precisionDriving)
   {
 
-    if (result.PIDMode == FAST_PID){
+    if (result.PIDMode == FAST_PID)
+    {
       float vel = result.pd.cmdVel -linearVelocity;
       float setVel = result.pd.cmdVel;
       fastPID(vel,result.pd.cmdAngularError, setVel, result.pd.setPointYaw);
     }
-    else if (result.PIDMode == SLOW_PID) {
+    else if (result.PIDMode == SLOW_PID)
+    {
       //will take longer to reach the setPoint but has less chanse of an overshoot
       float vel = result.pd.cmdVel -linearVelocity;
       float setVel = result.pd.cmdVel;
       slowPID(vel,result.pd.cmdAngularError, setVel, result.pd.setPointYaw);
     }
-    else if (result.PIDMode == CONST_PID) {
+    else if (result.PIDMode == CONST_PID)
+    {
       float vel = result.pd.cmdVel - linearVelocity;
       float angular = result.pd.cmdAngular - angularVelocity;
+
+      cout << "Ang. Vel.  " << angularVelocity << "  Ang. Error" << angular << endl;
+
       constPID(vel, angular ,result.pd.setPointVel, result.pd.setPointYaw);
     }
   }
@@ -266,7 +272,7 @@ void DriveController::ProcessData()
 void DriveController::fastPID(float errorVel, float errorYaw , float setPointVel, float setPointYaw)
 {
 
-  float velOut = 0;//fastVelPID.PIDOut(errorVel, setPointVel);
+  float velOut = fastVelPID.PIDOut(errorVel, setPointVel);
   float yawOut = fastYawPID.PIDOut(errorYaw, setPointYaw);
 
   int left = velOut - yawOut;
@@ -302,8 +308,8 @@ void DriveController::slowPID(float errorVel,float errorYaw, float setPointVel, 
 
 void DriveController::constPID(float erroVel,float constAngularError, float setPointVel, float setPointYaw) {
 
-  float velOut = fastVelPID.PIDOut(erroVel, setPointVel);
-  float yawOut = fastYawPID.PIDOut(constAngularError, setPointYaw);
+  float velOut = constVelPID.PIDOut(erroVel, setPointVel);
+  float yawOut = constYawPID.PIDOut(constAngularError, setPointYaw);
 
   int left = velOut - yawOut;
   int right = velOut + yawOut;
@@ -352,12 +358,12 @@ PIDConfig DriveController::fastVelConfig() {
 PIDConfig DriveController::fastYawConfig() {
   PIDConfig config;
 
-  config.Kp = 120;
-  config.Ki = 10;
-  config.Kd = 1.7;
+  config.Kp = 60;
+  config.Ki = 15;
+  config.Kd = 5;
   config.satUpper = 255;
   config.satLower = -255;
-  config.antiWindup = config.satUpper/3;
+  config.antiWindup = config.satUpper/6;
   config.errorHistLength = 4;
   config.alwaysIntegral = false;
   config.resetOnSetpoint = true;
@@ -418,16 +424,16 @@ PIDConfig DriveController::slowYawConfig() {
 PIDConfig DriveController::constVelConfig() {
   PIDConfig config;
 
-  config.Kp = 140;
+  config.Kp = 60;
   config.Ki = 10;
-  config.Kd = 0.8;
+  config.Kd = 2;
   config.satUpper = 255;
   config.satLower = -255;
-  config.antiWindup = config.satUpper/2;
+  config.antiWindup = config.satUpper;
   config.errorHistLength = 4;
   config.alwaysIntegral = true;
   config.resetOnSetpoint = true;
-  config.feedForwardMultiplier = 320; //gives 127 pwm at 0.4 commandedspeed
+  config.feedForwardMultiplier = 610; //gives 127 pwm at 0.4 commandedspeed  ORIG:320
   config.integralDeadZone = 0.01;
   config.integralErrorHistoryLength = 10000;
   config.integralMax = config.satUpper/2;
@@ -440,19 +446,19 @@ PIDConfig DriveController::constVelConfig() {
 PIDConfig DriveController::constYawConfig() {
   PIDConfig config;
 
-  config.Kp = 100;
+  config.Kp = 5;
   config.Ki = 5;
-  config.Kd = 1.2;
+  config.Kd = 0;
   config.satUpper = 255;
   config.satLower = -255;
   config.antiWindup = config.satUpper/4;
   config.errorHistLength = 4;
   config.alwaysIntegral = true;
   config.resetOnSetpoint = true;
-  config.feedForwardMultiplier = 120;
+  config.feedForwardMultiplier = 0;
   config.integralDeadZone = 0.01;
   config.integralErrorHistoryLength = 10000;
-  config.integralMax = config.satUpper/2;
+  config.integralMax = config.satUpper;
   config.derivativeAlpha = 0.6;
 
   return config;

@@ -109,7 +109,14 @@ long int startTime = 0;
 float minutesTime = 0;
 float hoursTime = 0;
 
-float drift_tolerance = 5.0; // meters
+float drift_tolerance = 3.5; // meters
+
+//hysteresis array size is the number of seconds to store data * 10
+const int WINDOW_SIZE = 10;
+
+//array to hold math hysteresis data
+Point hysteresis_data[WINDOW_SIZE];
+Point map_average;
 
 Result result;
 
@@ -693,9 +700,27 @@ void transformMapCentertoOdom()
     centerLocationOdom.y += ydiff/diff;
   }
   
-  //cout << "center x diff : " << centerLocationMapRef.x - centerLocationOdom.x << " center y diff : " << centerLocationMapRef.y - centerLocationOdom.y << endl;
-  //cout << hypot(centerLocationMapRef.x - centerLocationOdom.x, centerLocationMapRef.y - centerLocationOdom.y) << endl;
-          
+  cout << "center x diff : " << centerLocationMapRef.x - centerLocationOdom.x << " center y diff : " << centerLocationMapRef.y - centerLocationOdom.y <<  " hypot diff : " << hypot(centerLocationMapRef.x - centerLocationOdom.x, centerLocationMapRef.y - centerLocationOdom.y) << endl;
+  cout << "CenterLocationODOM: (" << centerLocationOdom.x << ", " << centerLocationOdom.y << ")" << "Current Location ODOM: (" << currentLocation.x << "," << currentLocation.y << ")" << endl;
+}
+
+// Hysteresis
+void calculateMapHysteresis()
+{
+    //create a temporary variable to store the averaged data of the window
+    map_average.x = 0;
+    map_average.y = 0;
+
+    //find the average of all the data in the hysteresis array
+    for(int counter = 0; counter < WINDOW_SIZE; counter++)
+    {
+        //add all the elements in the hysteresis array
+        hysteresis_data[counter].x += map_average.x;
+        hysteresis_data[counter].y += map_average.y;
+    }
+    //divide by the number of items in the array (the size of the window)
+    map_average.x /= WINDOW_SIZE;
+    map_average.y /= WINDOW_SIZE;
 }
 
 void humanTime() {

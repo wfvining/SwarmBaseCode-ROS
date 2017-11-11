@@ -9,6 +9,7 @@ DropOffController::DropOffController()
   result.b = wait;
   result.wristAngle = 0.7;
   result.reset = false;
+  result.PIDMode = FAST_PID;
   interrupt = false;
 
   circularCenterSearching = false;
