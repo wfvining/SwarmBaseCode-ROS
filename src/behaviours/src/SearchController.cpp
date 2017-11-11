@@ -28,8 +28,6 @@ void SearchController::Reset()
 Result SearchController::DoWork()
 {
 
-  return result;
-
   if (!result.wpts.waypoints.empty())
   {
     if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.10) {
@@ -57,7 +55,7 @@ Result SearchController::DoWork()
     {
       first_waypoint = false;
       searchLocation.theta = currentLocation.theta + M_PI_2;
-      searchLocation.x = currentLocation.x + (1000 * cos(searchLocation.theta));
+      searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
       searchLocation.y = currentLocation.y; + (0.5 * sin(searchLocation.theta));
     }
     else
@@ -76,7 +74,8 @@ Result SearchController::DoWork()
 
 }
 
-void SearchController::SetCenterLocation(Point centerLocation) {
+void SearchController::SetCenterLocation(Point centerLocation)
+{
   
   float diffX = this->centerLocation.x - centerLocation.x;
   float diffY = this->centerLocation.y - centerLocation.y;

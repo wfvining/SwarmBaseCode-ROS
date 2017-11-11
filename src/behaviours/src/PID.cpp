@@ -146,7 +146,7 @@ float PID::PIDOut(float calculatedError, float setPoint)
 
   float PIDOut = P + I + D + FF;
 
-  cout << "P:  " << P << ",  I:  " << I << ", D:  " << D << ", FF:  " << FF << endl;
+  //cout << "P:  " << P << ",  I:  " << I << ", D:  " << D << ", FF:  " << FF << endl;
 
   if (PIDOut > config.satUpper) //cap vel command
   {

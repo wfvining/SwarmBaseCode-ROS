@@ -35,6 +35,8 @@ DropOffController::~DropOffController()
 Result DropOffController::DoWork()
 {
 
+  cout << "In Do Work Drop Off!" << endl;
+
   int count = countLeft + countRight;
 
   if(timerTimeElapsed > -1)
@@ -341,9 +343,13 @@ void DropOffController::SetTargetData(vector<Tag> tags)
           }
         }
       }
+
+      if(countLeft > 0 || countRight > 0)
+      {
+          //cout << "See Center Tags DropOff" << endl;
+      }
     }
   }
-
 }
 
 void DropOffController::ProcessData()

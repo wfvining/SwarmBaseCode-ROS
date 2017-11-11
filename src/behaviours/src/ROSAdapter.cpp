@@ -375,7 +375,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
     
     
     //adds a blank space between sets of debugging data to easily tell one tick from the next
-    cout << endl;
+    //cout << endl;
     
   }
   
@@ -700,8 +700,8 @@ void transformMapCentertoOdom()
     centerLocationOdom.y += ydiff/diff;
   }
   
-  cout << "center x diff : " << centerLocationMapRef.x - centerLocationOdom.x << " center y diff : " << centerLocationMapRef.y - centerLocationOdom.y <<  " hypot diff : " << hypot(centerLocationMapRef.x - centerLocationOdom.x, centerLocationMapRef.y - centerLocationOdom.y) << endl;
-  cout << "CenterLocationODOM: (" << centerLocationOdom.x << ", " << centerLocationOdom.y << ")" << "Current Location ODOM: (" << currentLocation.x << "," << currentLocation.y << ")" << endl;
+  //cout << "center x diff : " << centerLocationMapRef.x - centerLocationOdom.x << " center y diff : " << centerLocationMapRef.y - centerLocationOdom.y <<  " hypot diff : " << hypot(centerLocationMapRef.x - centerLocationOdom.x, centerLocationMapRef.y - centerLocationOdom.y) << endl;
+  //cout << "CenterLocationODOM: (" << centerLocationOdom.x << ", " << centerLocationOdom.y << ")" << "Current Location ODOM: (" << currentLocation.x << "," << currentLocation.y << ")" << endl;
 }
 
 // Hysteresis

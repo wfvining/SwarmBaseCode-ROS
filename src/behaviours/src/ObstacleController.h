@@ -56,6 +56,8 @@ private:
   bool obstacleAvoided;
   bool clearWaypoints = false;
 
+  bool use_ultra_sound;
+
   float left = 0;
   float center = 0;
   float right = 0;

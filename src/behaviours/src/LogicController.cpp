@@ -33,7 +33,8 @@ Result LogicController::DoWork() {
   //first a loop runs through all the controllers who have a priority of 0 or above witht he largest number being
   //most important. A priority of less than 0 is an ignored controller use -1 for standards sake.
   //if any controller needs and interrupt the logic state is changed to interrupt
-  for(PrioritizedController cntrlr : prioritizedControllers) {
+  for(PrioritizedController cntrlr : prioritizedControllers)
+  {
     if(cntrlr.controller->ShouldInterrupt() && cntrlr.priority >= 0) 
       {
 	logicState = LOGIC_STATE_INTERRUPT;
@@ -42,32 +43,40 @@ Result LogicController::DoWork() {
   }
 
   //logic state switch
-  switch(logicState) {
+  switch(logicState)
+  {
 
   //when an interrupt has been thorwn or there are no pending control_queue.top().actions logic controller is in this state.
-  case LOGIC_STATE_INTERRUPT: {
+  case LOGIC_STATE_INTERRUPT:
+  {
     //Reset the control queue
     control_queue = priority_queue<PrioritizedController>();
 
     //check what controllers have work to do all that say yes will be added to the priority queue.
-    for(PrioritizedController cntrlr : prioritizedControllers) {
-      if(cntrlr.controller->HasWork()) {
-        if (cntrlr.priority < 0) {
+    for(PrioritizedController cntrlr : prioritizedControllers)
+    {
+      if(cntrlr.controller->HasWork())
+      {
+        if (cntrlr.priority < 0)
+        {
           continue;
         }
-        else {
+        else
+        {
           control_queue.push(cntrlr);
         }
       }
     }
 
     //if no controlers have work report this to ROS Adapter and do nothing.
-    if(control_queue.empty()) {
+    if(control_queue.empty())
+    {
       result.type = behavior;
       result.b = wait;
       break;
     }
-    else {
+    else
+    {
       //default result state if someone has work this safe gaurds against faulty result types
       result.b = noChange;
     }
@@ -77,36 +86,45 @@ Result LogicController::DoWork() {
 
     //anaylyze the result that was returned and do state changes accordingly
     //behavior types are used to indicate behavior changes of some form
-    if(result.type == behavior) {
+    if(result.type == behavior)
+    {
 
       //ask for an external reset so the state of the controller is preserved untill after it has returned a result and
       //gotten a chance to communicate with other controllers
-      if (result.reset) {
+      if (result.reset)
+      {
         controllerInterconnect(); //allow controller to communicate state data before it is reset
         control_queue.top().controller->Reset();
       }
 
       //ask for the procces state to change to the next state or loop around to the begining
-      if(result.b == nextProcess) {
-        if (processState == _LAST - 1) {
+      if(result.b == nextProcess)
+      {
+        if (processState == _LAST - 1)
+        {
           processState = _FIRST;
         }
-        else {
+        else
+        {
           processState = (ProcessState)((int)processState + 1);
         }
       }
       //ask for the procces state to change to the previouse state or loop around to the end
-      else if(result.b == prevProcess) {
-        if (processState == _FIRST) {
+      else if(result.b == prevProcess)
+      {
+        if (processState == _FIRST)
+        {
           processState = (ProcessState)((int)_LAST - 1);
         }
-        else {
+        else
+        {
           processState = (ProcessState)((int)processState - 1);
         }
       }
 
       //update the priorites of the controllers based upon the new process state.
-      if (result.b == nextProcess || result.b == prevProcess) {
+      if (result.b == nextProcess || result.b == prevProcess)
+      {
         ProcessData();
         result.b = wait;
         driveController.Reset(); //it is assumed that the drive controller may be in a bad state if interrupted so reset it
@@ -116,17 +134,16 @@ Result LogicController::DoWork() {
 
     //precision driving result types are when a controller wants direct command of the robots actuators
     //logic controller facilitates the command pass through in the LOGIC_STATE_PRECISION_COMMAND switch case
-    else if(result.type == precisionDriving) {
-
+    else if(result.type == precisionDriving)
+    {
       logicState = LOGIC_STATE_PRECISION_COMMAND;
       break;
-
     }
 
     //waypoints are also a pass through facilitated command but with a slightly diffrent overhead
     //they are handled in the LOGIC_STATE_WAITING switch case
-    else if(result.type == waypoint) {
-
+    else if(result.type == waypoint)
+    {
       logicState = LOGIC_STATE_WAITING;
       driveController.SetResultData(result);
       //fall through on purpose
@@ -135,15 +152,20 @@ Result LogicController::DoWork() {
   } //end of interupt case***************************************************************************************
 
     //this case is primarly when logic controller is waiting for drive controller to reach its last waypoint
-  case LOGIC_STATE_WAITING: {
+  case LOGIC_STATE_WAITING:
+  {
+    cout << "IN WAITING STATE" << endl;
+
     //ask drive controller how to drive
     //commands to be passed the ROS Adapter as left and right wheel PWM values in the result struct are returned
     result = driveController.DoWork();
 
     //when out of waypoints drive controller will through an interrupt however unlike other controllers
     //drive controller is not on the priority queue so it must be checked here
-    if (result.type == behavior) {
-      if(driveController.ShouldInterrupt()) {
+    if (result.type == behavior)
+    {
+      if(driveController.ShouldInterrupt())
+      {
         logicState = LOGIC_STATE_INTERRUPT;
       }
     }
@@ -151,7 +173,10 @@ Result LogicController::DoWork() {
   }//end of waiting case*****************************************************************************************
 
     //used for precision driving pass through
-  case LOGIC_STATE_PRECISION_COMMAND: {
+  case LOGIC_STATE_PRECISION_COMMAND:
+  {
+
+   cout << "Precision Driving" << endl;
 
     //unlike waypoints precision commands change every update tick so we ask the
     //controller for new commands on every update tick.
@@ -191,6 +216,8 @@ void LogicController::ProcessData()
   //this controller priority is used when searching
   if (processState == PROCCESS_STATE_SEARCHING) 
   {
+      cout << "PROCESS STATE SEARCHING" << endl;
+
     prioritizedControllers = {
       PrioritizedController{0, (Controller*)(&searchController)},
       PrioritizedController{10, (Controller*)(&obstacleController)},
@@ -204,6 +231,8 @@ void LogicController::ProcessData()
   //this priority is used when returning a target to the center collection zone
   else if (processState  == PROCCESS_STATE_TARGET_PICKEDUP) 
   {
+    cout << "PROCESS STATE TARGET PICKUP" << endl;
+
     prioritizedControllers = {
     PrioritizedController{-1, (Controller*)(&searchController)},
     PrioritizedController{15, (Controller*)(&obstacleController)},
@@ -216,6 +245,8 @@ void LogicController::ProcessData()
   //this priority is used when returning a target to the center collection zone
   else if (processState  == PROCCESS_STATE_DROP_OFF)
   {
+    cout << "PROCESS STATE DROP OFF" << endl;
+
     prioritizedControllers = {
       PrioritizedController{-1, (Controller*)(&searchController)},
       PrioritizedController{-1, (Controller*)(&obstacleController)},
@@ -225,7 +256,10 @@ void LogicController::ProcessData()
       PrioritizedController{-1, (Controller*)(&manualWaypointController)}
     };
   }
-  else if (processState == PROCESS_STATE_MANUAL) {
+  else if (processState == PROCESS_STATE_MANUAL)
+  {
+    //cout << "PROCESS STATE MANUAL" << endl;
+
     prioritizedControllers = {
       PrioritizedController{-1, (Controller*)(&searchController)},
       PrioritizedController{-1, (Controller*)(&obstacleController)},
