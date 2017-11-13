@@ -19,6 +19,12 @@ void LogicController::Reset() {
   logicState = LOGIC_STATE_INTERRUPT;
   processState = PROCCESS_STATE_SEARCHING;
 
+  dropOffController.Reset();
+  pickUpController.Reset();
+  searchController.Reset();
+  obstacleController.Reset();
+  driveController.Reset();
+
   ProcessData();
 
   control_queue = priority_queue<PrioritizedController>();
