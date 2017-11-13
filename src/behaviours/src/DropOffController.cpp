@@ -254,6 +254,7 @@ Result DropOffController::DoWork()
         result.type = behavior;
         result.b = prevProcess;
         result.reset = false;
+        first_center = true;
       }
 
       isPrecisionDriving = false;
