@@ -120,6 +120,9 @@ Result DropOffController::DoWork()
     }
 
     spinSizeIncrease += spinSizeIncrement/8;
+
+    //reset the search area if it grow to large
+    if (spinSizeIncrease + initialSpinSize > max_search_size) spinSizeIncrease = 0;
     circularCenterSearching = true;
 
     //safety flag to prevent us trying to drive back to the

@@ -46,6 +46,7 @@ private:
   const float spinSizeIncrement = 0.50; //in meters
   const float searchVelocity = 0.15; //in meters per second
   const float dropDelay = 0.5; //delay in seconds for dropOff
+  const float max_search_size = 5.0; //max size of search spirale for center search resets to 0 if it exeeds this threshold
 
 
 
