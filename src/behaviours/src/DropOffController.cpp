@@ -35,7 +35,7 @@ DropOffController::~DropOffController()
 Result DropOffController::DoWork()
 {
 
-  cout << "In Do Work Drop Off!" << endl;
+  cout << "Dropoff Do Work" << endl;
 
   int count = countLeft + countRight;
 
@@ -179,8 +179,11 @@ Result DropOffController::DoWork()
 
     result.type = precisionDriving;
 
+    // If there are too few tags seen the rover has trouble aligning itself so there are tags on both sides
+    int min_num_of_tags = 4;
+
     //otherwise turn till tags on both sides of image then drive straight
-    if (left && right)
+    if (left && right || count < min_num_of_tags)
     {
       result.pd.cmdVel = searchVelocity;
       result.pd.cmdAngularError = 0.0;

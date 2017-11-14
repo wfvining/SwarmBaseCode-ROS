@@ -183,6 +183,8 @@ bool PickUpController::ShouldInterrupt(){
 Result PickUpController::DoWork()
 {
 
+  cout << "Pickup Do Work" << endl;
+
   has_control = true;
 
   if (!targetHeld)

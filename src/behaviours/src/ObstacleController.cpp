@@ -45,9 +45,12 @@ void ObstacleController::avoidCollectionZone()
 
     // Decide which side of the rover sees the most april tags and turn away
     // from that side
-    if(count_left_collection_zone_tags < count_right_collection_zone_tags) {
+    if(count_left_collection_zone_tags < count_right_collection_zone_tags)
+    {
       result.pd.cmdAngular = K_angular;
-    } else {
+    }
+    else
+    {
       result.pd.cmdAngular = -K_angular;
     }
 
@@ -145,20 +148,26 @@ void ObstacleController::ProcessData()
     {
       ignore_center_sonar = false;
     }
-    else{
+    else
+    {
       center = 3;
     }
   }
-  else {
-    if (center < 0.12) {
+  else
+  {
+    if (center < 0.2)
+    {
       result.wristAngle = 0.7;
     }
-    else {
+    else
+    {
       result.wristAngle = -1;
     }
   }
 
-  if (left < triggerDistance || right < triggerDistance || center < triggerDistance)
+  //Check to see if ultrasound sensors register targets within a threshold.
+  //Center must check to see if less than the trigger distance but greater than a distance it might see a block it is carrying (to prevent false obstacle calls)
+  if (left < triggerDistance || right < triggerDistance || (center < triggerDistance && center > .5))
   {
     phys = true;
     timeSinceTags = current_time;

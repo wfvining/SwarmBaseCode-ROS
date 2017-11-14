@@ -33,8 +33,11 @@ void LogicController::Reset() {
 //***********************************************************************************************************************
 //This function is called every 1/10th second by the ROSAdapter
 //The logical flow if the behaviours is controlled here by using a interrupt, haswork, priority queue system.
-Result LogicController::DoWork() {
+Result LogicController::DoWork()
+{
   Result result;
+
+  cout << "Logic Do Work" << endl;
 
   //first a loop runs through all the controllers who have a priority of 0 or above witht he largest number being
   //most important. A priority of less than 0 is an ignored controller use -1 for standards sake.

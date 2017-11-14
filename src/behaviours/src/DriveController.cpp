@@ -125,7 +125,7 @@ Result DriveController::DoWork()
     float errorYaw = angles::shortest_angular_distance(currentLocation.theta, waypoints.back().theta);
 
     //cout << "ROTATE Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << endl;
-    //cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
+    cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
 
     result.pd.setPointVel = 0.0;
     //Calculate absolute value of angle
@@ -164,7 +164,7 @@ Result DriveController::DoWork()
     float distance = hypot(waypoints.back().x - currentLocation.x, waypoints.back().y - currentLocation.y);
     
     //cout << "Skid steer, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << " error distance : " << distance << endl;
-    //cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
+    cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
 
 
 
@@ -272,13 +272,15 @@ void DriveController::ProcessData()
 void DriveController::fastPID(float errorVel, float errorYaw , float setPointVel, float setPointYaw)
 {
 
+  cout << "PID FAST" << endl;
+
   float velOut = fastVelPID.PIDOut(errorVel, setPointVel);
   float yawOut = fastYawPID.PIDOut(errorYaw, setPointYaw);
 
   int left = velOut - yawOut;
   int right = velOut + yawOut;
 
-  int sat = 255;
+  int sat = 180;
   if (left  >  sat) {left  =  sat;}
   if (left  < -sat) {left  = -sat;}
   if (right >  sat) {right =  sat;}
@@ -288,7 +290,9 @@ void DriveController::fastPID(float errorVel, float errorYaw , float setPointVel
   this->right = right;
 }
 
-void DriveController::slowPID(float errorVel,float errorYaw, float setPointVel, float setPointYaw) {
+void DriveController::slowPID(float errorVel,float errorYaw, float setPointVel, float setPointYaw)
+{
+  cout << "PID SLOW" << endl;
 
   float velOut = slowVelPID.PIDOut(errorVel, setPointVel);
   float yawOut = slowYawPID.PIDOut(errorYaw, setPointYaw);
@@ -296,7 +300,7 @@ void DriveController::slowPID(float errorVel,float errorYaw, float setPointVel, 
   int left = velOut - yawOut;
   int right = velOut + yawOut;
 
-  int sat = 255;
+  int sat = 180;
   if (left  >  sat) {left  =  sat;}
   if (left  < -sat) {left  = -sat;}
   if (right >  sat) {right =  sat;}
@@ -306,7 +310,10 @@ void DriveController::slowPID(float errorVel,float errorYaw, float setPointVel, 
   this->right = right;
 }
 
-void DriveController::constPID(float erroVel,float constAngularError, float setPointVel, float setPointYaw) {
+void DriveController::constPID(float erroVel,float constAngularError, float setPointVel, float setPointYaw)
+{
+
+  cout << "PID CONST" << endl;
 
   float velOut = constVelPID.PIDOut(erroVel, setPointVel);
   float yawOut = constYawPID.PIDOut(constAngularError, setPointYaw);
@@ -314,7 +321,7 @@ void DriveController::constPID(float erroVel,float constAngularError, float setP
   int left = velOut - yawOut;
   int right = velOut + yawOut;
 
-  int sat = 255;
+  int sat = 180;
   if (left  >  sat) {left  =  sat;}
   if (left  < -sat) {left  = -sat;}
   if (right >  sat) {right =  sat;}
@@ -325,7 +332,8 @@ void DriveController::constPID(float erroVel,float constAngularError, float setP
 }
 
 
-void DriveController::SetVelocityData(float linearVelocity,float angularVelocity) {
+void DriveController::SetVelocityData(float linearVelocity,float angularVelocity)
+{
   this->linearVelocity = linearVelocity;
   this->angularVelocity = angularVelocity;
 }
@@ -333,7 +341,8 @@ void DriveController::SetVelocityData(float linearVelocity,float angularVelocity
 
 
 
-PIDConfig DriveController::fastVelConfig() {
+PIDConfig DriveController::fastVelConfig()
+{
   PIDConfig config;
 
   config.Kp = 60;
