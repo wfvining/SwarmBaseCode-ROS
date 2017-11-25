@@ -197,7 +197,8 @@ void LogicController::ProcessData()
       PrioritizedController{15, (Controller*)(&pickUpController)},
       PrioritizedController{5, (Controller*)(&range_controller)},
       PrioritizedController{-1, (Controller*)(&dropOffController)},
-      PrioritizedController{-1, (Controller*)(&manualWaypointController)}
+      PrioritizedController{-1, (Controller*)(&manualWaypointController)},
+      PrioritizedController{2, (Controller*)(&siteFidelityController)}
     };
   }
 
@@ -210,7 +211,8 @@ void LogicController::ProcessData()
     PrioritizedController{-1, (Controller*)(&pickUpController)},
     PrioritizedController{10, (Controller*)(&range_controller)},
     PrioritizedController{1, (Controller*)(&dropOffController)},
-    PrioritizedController{-1, (Controller*)(&manualWaypointController)}
+    PrioritizedController{-1, (Controller*)(&manualWaypointController)},
+    PrioritizedController{-1, (Controller*)(&siteFidelityController)}
     };
   }
   //this priority is used when returning a target to the center collection zone
@@ -222,7 +224,8 @@ void LogicController::ProcessData()
       PrioritizedController{-1, (Controller*)(&pickUpController)},
       PrioritizedController{10, (Controller*)(&range_controller)},
       PrioritizedController{1, (Controller*)(&dropOffController)},
-      PrioritizedController{-1, (Controller*)(&manualWaypointController)}
+      PrioritizedController{-1, (Controller*)(&manualWaypointController)},
+      PrioritizedController{-1, (Controller*)(&siteFidelityController)}
     };
   }
   else if (processState == PROCESS_STATE_MANUAL) {
@@ -232,7 +235,8 @@ void LogicController::ProcessData()
       PrioritizedController{-1, (Controller*)(&pickUpController)},
       PrioritizedController{-1, (Controller*)(&range_controller)},
       PrioritizedController{-1, (Controller*)(&dropOffController)},
-      PrioritizedController{5,  (Controller*)(&manualWaypointController)}
+      PrioritizedController{5,  (Controller*)(&manualWaypointController)},
+      PrioritizedController{-1, (Controller*)(&siteFidelityController)}
     };     
   }
 }
@@ -268,6 +272,7 @@ void LogicController::controllerInterconnect()
       dropOffController.SetTargetPickedUp();
       obstacleController.setTargetHeld();
       searchController.SetSuccesfullPickup();
+      siteFidelityController.SetSiteFidelityLocation();
     }
   }
 
@@ -293,12 +298,13 @@ void LogicController::SetPositionData(Point currentLocation)
   obstacleController.setCurrentLocation(currentLocation);
   driveController.SetCurrentLocation(currentLocation);
   manualWaypointController.SetCurrentLocation(currentLocation);
+  siteFidelityController.SetCurrentLocation(currentLocation);
 }
 
 // Recieves position in the world frame with global data (GPS)
 void LogicController::SetMapPositionData(Point currentLocation) 
 {
-  range_controller.setCurrentLocation(currentLocation);  
+  range_controller.setCurrentLocation(currentLocation);
 }
 
 void LogicController::SetVelocityData(float linearVelocity, float angularVelocity) 

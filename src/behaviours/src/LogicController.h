@@ -9,6 +9,7 @@
 #include "DriveController.h"
 #include "RangeController.h"
 #include "ManualWaypointController.h"
+#include "SiteFidelityController.h"
 
 #include <vector>
 #include <queue>
@@ -84,20 +85,21 @@ private:
   LogicState logicState;
   ProcessState processState;
 
-  PickUpController pickUpController;
-  DropOffController dropOffController;
-  SearchController searchController;
-  ObstacleController obstacleController;
-  DriveController driveController;
-  RangeController range_controller;
+  PickUpController         pickUpController;
+  DropOffController        dropOffController;
+  SearchController         searchController;
+  ObstacleController       obstacleController;
+  DriveController          driveController;
+  RangeController          range_controller;
   ManualWaypointController manualWaypointController;
+  SiteFidelityController   siteFidelityController;
 
   std::vector<PrioritizedController> prioritizedControllers;
   priority_queue<PrioritizedController> control_queue;
 
   void controllerInterconnect();
 
-  long int current_time = 0;
+  long int current_time = 0;  
 };
 
 #endif // LOGICCONTROLLER_H
