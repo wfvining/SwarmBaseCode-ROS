@@ -87,6 +87,7 @@ Result DriveController::DoWork()
       if (hypot(waypoints.back().x-currentLocation.x, waypoints.back().y-currentLocation.y) < waypointTolerance)
       {
         waypoints.pop_back();
+        preempted = false;
       }
       else
       {
@@ -206,6 +207,16 @@ Result DriveController::DoWork()
   //return modified struct
   return result;
 
+}
+
+void DriveController::Preempt(Point p)
+{
+  if(preempted) {
+    waypoints.pop_back();
+  }
+  waypoints.push_back(p);
+  preempted = true;
+  stateMachineState = STATE_MACHINE_WAYPOINTS;
 }
 
 bool DriveController::ShouldInterrupt()

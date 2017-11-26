@@ -1,5 +1,8 @@
 #include "SiteFidelityController.h"
 
+#include <cmath>
+#include <angles/angles.h>
+
 SiteFidelityController::SiteFidelityController()
 {}
 
@@ -17,8 +20,11 @@ Result SiteFidelityController::DoWork()
    r.type = waypoint;
    r.PIDMode = FAST_PID;
    r.wpts.waypoints.push_back(site_fidelity_location);
+   r.wristAngle = M_PI/4;
+   r.fingerAngle = M_PI/2;
    // our work here is done.
    use_site_fidelity = false;
+   returning = true;
 
    return r;
 }
@@ -44,4 +50,14 @@ void SiteFidelityController::SetSiteFidelityLocation()
 void SiteFidelityController::SetCurrentLocation(Point c)
 {
    current_location = c;
+   if(returning
+      && hypot(c.x - site_fidelity_location.x, c.y - site_fidelity_location.y) < SITE_FIDELITY_TOLERANCE)
+   {
+      returning = false;
+   }
+}
+
+void SiteFidelityController::InterruptedForObstacle()
+{
+   // XXX: No longer needed?
 }

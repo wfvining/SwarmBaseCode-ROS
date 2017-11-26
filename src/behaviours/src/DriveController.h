@@ -20,6 +20,8 @@ public:
   void SetVelocityData(float linearVelocity,float angularVelocity);
   void SetCurrentLocation(Point currentLocation) {this->currentLocation = currentLocation;}
 
+  void Preempt(Point p);
+
 private:
 
   Result result;
@@ -28,6 +30,7 @@ private:
   float right;
 
   bool interupt = false;
+  bool preempted = false;
 
   float rotateOnlyAngleTolerance = 0.05;  //May be too low?
   float finalRotationTolerance = 0.1;

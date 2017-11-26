@@ -19,14 +19,42 @@ void ObstacleController::Reset() {
 void ObstacleController::avoidObstacle() {
   
     //obstacle on right side
-    if (right < 0.8 || center < 0.8 || left < 0.8) {
+    if (right < 0.8) {
       result.type = precisionDriving;
 
-      result.pd.cmdAngular = -K_angular;
+      result.pd.cmdAngular = K_angular;
 
       result.pd.setPointVel = 0.0;
       result.pd.cmdVel = 0.0;
       result.pd.setPointYaw = 0;
+
+      preempt.x = currentLocation.x - (0.5 * cos(currentLocation.theta));
+      preempt.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
+    }
+    else if(left < 0.8) {
+       result.type = precisionDriving;
+
+       result.pd.cmdAngular = -K_angular;
+
+       result.pd.setPointVel = 0.0;
+       result.pd.cmdVel = 0.0;
+       result.pd.setPointYaw = 0;
+
+       preempt.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
+       preempt.y = currentLocation.y - (0.5 * sin(currentLocation.theta));
+    }
+    else if(center < 0.8)
+    {
+       result.type = precisionDriving;
+
+       result.pd.cmdAngular = K_angular;
+
+       result.pd.setPointVel = 0.0;
+       result.pd.cmdVel = 0.0;
+       result.pd.setPointYaw = 0;
+
+       preempt.x = currentLocation.x - (0.5 * cos(currentLocation.theta));
+       preempt.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
     }
 }
 
@@ -42,8 +70,14 @@ void ObstacleController::avoidCollectionZone() {
     // from that side
     if(count_left_collection_zone_tags < count_right_collection_zone_tags) {
       result.pd.cmdAngular = K_angular;
+      preempt.x = currentLocation.x - (0.5 * cos(currentLocation.theta));
+      preempt.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
+      ignore_cz = 5;
     } else {
       result.pd.cmdAngular = -K_angular;
+      preempt.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
+      preempt.y = currentLocation.y - (0.5 * sin(currentLocation.theta));
+      ignore_cz = 5;
     }
 
     result.pd.setPointVel = 0.0;
@@ -135,8 +169,7 @@ void ObstacleController::ProcessData() {
     timeSinceTags = current_time;
   }
 
-
-  if (collection_zone_seen || phys)
+  if (ignore_cz == 0 && collection_zone_seen || phys)
   {
     obstacleDetected = true;
     obstacleAvoided = false;
@@ -144,6 +177,10 @@ void ObstacleController::ProcessData() {
   }
   else
   {
+     if(ignore_cz > 0)
+     {
+        ignore_cz--;
+     }
     obstacleAvoided = true;
   }
 }

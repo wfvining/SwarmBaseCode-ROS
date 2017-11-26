@@ -285,7 +285,16 @@ void LogicController::controllerInterconnect()
   //obstacle controller is running driveController needs to clear its waypoints
   if(obstacleController.getShouldClearWaypoints()) 
   {
-    driveController.Reset();
+    if(siteFidelityController.IsReturning()) {
+      // SF controller needs to know if it should interrupt again after
+      // the obstacle has been avoided.
+      siteFidelityController.InterruptedForObstacle();
+      driveController.Preempt(obstacleController.getPreempt());
+    }
+    else
+    {
+      driveController.Reset();
+    }
   }
 
 }

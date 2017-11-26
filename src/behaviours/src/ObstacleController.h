@@ -25,6 +25,7 @@ public:
   // Checks if a target is held and if so resets the state of the obestacle controller otherwise does nothing
   void setTargetHeldClear();
   bool getShouldClearWaypoints() {bool tmp = clearWaypoints; clearWaypoints = false; return tmp;}
+  Point getPreempt() { return preempt; }
 
 protected:
 
@@ -57,6 +58,7 @@ private:
   bool obstacleDetected;
   bool obstacleAvoided;
   bool clearWaypoints = false;
+  int  ignore_cz = 0;
 
   float left = 0;
   float center = 0;
@@ -69,6 +71,7 @@ private:
   bool ignore_center_sonar = false;
 
   Point currentLocation;
+  Point preempt;
 
   long int current_time;
   long int timeSinceTags;
