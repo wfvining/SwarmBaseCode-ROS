@@ -29,7 +29,15 @@ Result SearchController::DoWork() {
   
   if (!result.wpts.waypoints.empty()) {
     if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.15) {
-      attemptCount = 0;
+      if(result.wpts.waypoints.empty()) {
+        attemptCount = 0;
+        site_fidelity = false;
+        maxAttempts = 5;
+      }
+      else
+      {
+        attemptCount = 1;
+      }
     }
     else if(hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) > 1.0) {
       result.set_velocity = true;
@@ -37,7 +45,7 @@ Result SearchController::DoWork() {
     }
   }
 
-  if (attemptCount > 0 && attemptCount < 5) {
+  if (attemptCount > 0 && attemptCount < maxAttempts) {
     attemptCount++;
     if (succesfullPickup) {
       succesfullPickup = false;
@@ -45,7 +53,7 @@ Result SearchController::DoWork() {
     }
     return result;
   }
-  else if (attemptCount >= 5 || attemptCount == 0) 
+  else if (attemptCount >= maxAttempts || attemptCount == 0) 
   {
     attemptCount = 1;
 
@@ -82,13 +90,12 @@ void SearchController::SetCenterLocation(Point centerLocation) {
   float diffX = this->centerLocation.x - centerLocation.x;
   float diffY = this->centerLocation.y - centerLocation.y;
   this->centerLocation = centerLocation;
-  
-  if (!result.wpts.waypoints.empty())
+
+  for(auto it = result.wpts.waypoints.begin(); it != result.wpts.waypoints.end(); it++)
   {
-  result.wpts.waypoints.back().x -= diffX;
-  result.wpts.waypoints.back().y -= diffY;
+    it->x -= diffX;
+    it->y -= diffY;
   }
-  
 }
 
 void SearchController::SetCurrentLocation(Point currentLocation) {
@@ -109,6 +116,18 @@ bool SearchController::HasWork() {
 }
 
 void SearchController::SetSuccesfullPickup() {
+  // don't repeatedly set this.
+  if(!succesfullPickup) {
+    if(!site_fidelity) { result.wpts.waypoints.clear(); }
+     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), currentLocation);
+     maxAttempts = 15;
+     attemptCount = 1;
+     site_fidelity = true;
+     if(result.wpts.waypoints.size() >= 4)
+     {
+       result.wpts.waypoints.pop_back();
+     }
+  }
   succesfullPickup = true;
 }
 
