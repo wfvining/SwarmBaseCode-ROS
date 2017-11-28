@@ -132,6 +132,15 @@ Result LogicController::DoWork() {
       //fall through on purpose
     }
 
+    if(result.set_velocity)
+    {
+       driveController.SetSearchVelocity(result.velocity);
+    }
+    else
+    {
+       driveController.SetSearchVelocity(DEFAULT_VELOCITY);
+    }
+
   } //end of interupt case***************************************************************************************
 
     //this case is primarly when logic controller is waiting for drive controller to reach its last waypoint

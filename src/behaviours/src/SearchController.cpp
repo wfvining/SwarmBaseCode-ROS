@@ -1,4 +1,5 @@
 #include "SearchController.h"
+#include "DriveController.h"*
 #include <angles/angles.h>
 
 SearchController::SearchController() {
@@ -24,10 +25,15 @@ void SearchController::Reset() {
  * This code implements a basic random walk search.
  */
 Result SearchController::DoWork() {
-
+  result.set_velocity = false;
+  
   if (!result.wpts.waypoints.empty()) {
     if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.15) {
       attemptCount = 0;
+    }
+    else if(hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) > 1.0) {
+      result.set_velocity = true;
+      result.velocity = MAX_VELOCITY;
     }
   }
 
