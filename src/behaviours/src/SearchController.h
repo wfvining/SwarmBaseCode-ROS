@@ -38,6 +38,7 @@ private:
   Point centerLocation;
   Point searchLocation;
   int attemptCount = 0;
+  int maxAttempts = 5;
   //struct for returning data to ROS adapter
   Result result;
 
@@ -45,6 +46,7 @@ private:
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
   bool succesfullPickup = false;
+  bool site_fidelity = false;
 };
 
 #endif /* SEARCH_CONTROLLER */
