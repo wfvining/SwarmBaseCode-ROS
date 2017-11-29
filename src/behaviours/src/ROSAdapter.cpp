@@ -422,7 +422,7 @@ void sendDriveCommand(double left, double right)
  *************************/
 
 void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& message) {
-  
+
   if (message->detections.size() > 0) {
     vector<Tag> tags;
 
