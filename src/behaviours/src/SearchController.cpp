@@ -20,6 +20,10 @@ void SearchController::Reset() {
   result.reset = false;
 }
 
+void SearchController::AddWayPoint(Point wpt) {
+  results.wpts.waypoints.push_pack(wpt);
+}
+
 /**
  * This code implements a basic random walk search.
  */
@@ -53,7 +57,7 @@ Result SearchController::DoWork() {
 
 
     result.type = waypoint;
-    Point  searchLocation;
+    Point searchLocation;
 
     //select new position 50 cm from current location
     if (first_waypoint)
