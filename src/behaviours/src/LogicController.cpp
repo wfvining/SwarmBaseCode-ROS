@@ -188,6 +188,11 @@ Result LogicController::DoWork() {
   return result;
 }
 
+void LogicController::AddWaypoint(Point wpt)
+{
+  searchController.AddWaypoint(wpt);
+}
+
 void LogicController::UpdateData() 
 {
 

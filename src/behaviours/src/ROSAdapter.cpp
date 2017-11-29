@@ -568,7 +568,7 @@ void clusterHandler(const swarmie_msgs::Cluster& event)
     wp.x = event.x;
     wp.y = event.y;
     wp.theta = 0.0;
-    logicController.AddManualWaypoint(wp, event.id);
+    logicController.AddWaypoint(wp);
     cout << "Moving to waypoint to find cluster!" << endl;
   }
 }
