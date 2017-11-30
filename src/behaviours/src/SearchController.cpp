@@ -21,8 +21,15 @@ void SearchController::Reset() {
   result.reset = false;
 }
 
-void SearchController::AddWayPoint(Point wpt) {
-  results.wpts.waypoints.push_pack(wpt);
+void SearchController::AddWaypoint(Point wpt) {
+  if (this->searchingCluster || this->site_fidelity)
+  {
+    return;
+  }
+  result.wpts.waypoints.push_back(wpt);
+  this->searchingCluster = true;
+  cout << "Cluster is " << hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) << " meters away" << endl;
+  cout << "Added Waypoint to cluster" << endl;
 }
 
 /**
@@ -35,6 +42,7 @@ Result SearchController::DoWork() {
     if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.15) {
       result.wpts.waypoints.erase(result.wpts.waypoints.begin());
       if(result.wpts.waypoints.empty()) {
+        this->searchingCluster = false;
         attemptCount = 0;
         site_fidelity = false;
         maxAttempts = 5;
@@ -81,7 +89,7 @@ Result SearchController::DoWork() {
       searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
       searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
     }
-
+    this->searchingCluster = false;
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     

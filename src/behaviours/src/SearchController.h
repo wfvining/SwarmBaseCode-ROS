@@ -45,6 +45,7 @@ private:
 
   // Search state
   // Flag to allow special behaviour for the first waypoint
+  bool searchingCluster = false;
   bool first_waypoint = true;
   bool succesfullPickup = false;
   bool site_fidelity = false;
