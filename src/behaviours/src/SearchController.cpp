@@ -1,5 +1,5 @@
 #include "SearchController.h"
-#include "DriveController.h"*
+#include "DriveController.h"
 #include <angles/angles.h>
 
 SearchController::SearchController() {
@@ -29,6 +29,7 @@ Result SearchController::DoWork() {
   
   if (!result.wpts.waypoints.empty()) {
     if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.15) {
+      result.wpts.waypoints.erase(result.wpts.waypoints.begin());
       if(result.wpts.waypoints.empty()) {
         attemptCount = 0;
         site_fidelity = false;
@@ -118,15 +119,11 @@ bool SearchController::HasWork() {
 void SearchController::SetSuccesfullPickup() {
   // don't repeatedly set this.
   if(!succesfullPickup) {
-    if(!site_fidelity) { result.wpts.waypoints.clear(); }
-     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), currentLocation);
-     maxAttempts = 15;
-     attemptCount = 1;
-     site_fidelity = true;
-     if(result.wpts.waypoints.size() >= 4)
-     {
-       result.wpts.waypoints.pop_back();
-     }
+    result.wpts.waypoints.clear();
+    result.wpts.waypoints.insert(result.wpts.waypoints.begin(), currentLocation);
+    maxAttempts = 15;
+    attemptCount = 1;
+    site_fidelity = true;
   }
   succesfullPickup = true;
 }
