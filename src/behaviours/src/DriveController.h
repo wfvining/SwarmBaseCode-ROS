@@ -5,6 +5,9 @@
 #include "Controller.h"
 #include <angles/angles.h>
 
+#define MAX_VELOCITY     0.65f
+#define DEFAULT_VELOCITY 0.35f
+
 class DriveController : virtual Controller
 {
 public:
@@ -20,6 +23,8 @@ public:
   void SetVelocityData(float linearVelocity,float angularVelocity);
   void SetCurrentLocation(Point currentLocation) {this->currentLocation = currentLocation;}
 
+  void SetSearchVelocity(float v) { this->searchVelocity = v;};
+   
 private:
 
   Result result;
@@ -34,7 +39,7 @@ private:
   const float waypointTolerance = 0.15; //15 cm tolerance.
 
   //0.65 MAX value
-  float searchVelocity = 0.35; // meters/second
+  float searchVelocity = DEFAULT_VELOCITY; // meters/second
 
   float linearVelocity = 0;
   float angularVelocity = 0;
