@@ -35,7 +35,7 @@ Result SearchController::DoWork() {
       if(result.wpts.waypoints.empty()) {
         attemptCount = 0;
         site_fidelity = false;
-        maxAttempts = 5;
+        maxAttempts = 2;
       }
       else
       {
@@ -48,7 +48,7 @@ Result SearchController::DoWork() {
     }
   }
 
-  if (attemptCount > 0 && attemptCount < 5) {
+  if (attemptCount > 0 && attemptCount < maxAttempts) {
     attemptCount++;
     if (succesfullPickup) {
       succesfullPickup = false;
@@ -56,7 +56,7 @@ Result SearchController::DoWork() {
     }
     return result;
   }
-  else if (attemptCount >= 5 || attemptCount == 0) 
+  else if (attemptCount >= maxAttempts || attemptCount == 0) 
   {
     attemptCount = 1;
 
@@ -144,8 +144,8 @@ void SearchController::TwoPhaseWalk()
         //select new heading from Gaussian distribution around current heading
          // just go whatever directio we are already faing
         searchLocation.theta = rng->gaussian(currentLocation.theta,1.5708); //90 degrees in radians
-        searchLocation.x = currentLocation.x + (2.0 * cos(searchLocation.theta));// 2 m
-        searchLocation.y = currentLocation.y + (2.0 * sin(searchLocation.theta));// 2 m
+        searchLocation.x = currentLocation.x + (2.5 * cos(searchLocation.theta));// 2 m
+        searchLocation.y = currentLocation.y + (2.5 * sin(searchLocation.theta));// 2 m
         cout << "Rover is in Phase 1\n";
         state = 2;
         globalCounter = 0;
@@ -153,13 +153,13 @@ void SearchController::TwoPhaseWalk()
       else if(state == 2)
       {
         searchLocation.theta = rng->gaussian(currentLocation.theta,1.5708); //90 degrees in radians
-        searchLocation.x = currentLocation.x + (0.2 * cos(searchLocation.theta));// 20 cm
-        searchLocation.y = currentLocation.y + (0.2 * sin(searchLocation.theta));// 20 cm
+        searchLocation.x = currentLocation.x + (0.3 * cos(searchLocation.theta));// 20 cm
+        searchLocation.y = currentLocation.y + (0.3 * sin(searchLocation.theta));// 20 cm
         cout << "Rover is in Phase 2 [" << globalCounter << "]: (" << searchLocation.x << "," << searchLocation.y << ")" << std::endl;;
         globalCounter++;
       }
 
-      if(globalCounter == 10)
+      if(globalCounter == 5)
       {
          state = 1;
          cout << "Transitioning into Phase 1\n";

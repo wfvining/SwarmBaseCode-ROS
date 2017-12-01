@@ -6,7 +6,7 @@
 #include <angles/angles.h>
 
 #define MAX_VELOCITY     0.65f
-#define DEFAULT_VELOCITY 0.35f
+#define DEFAULT_VELOCITY 0.25f
 
 class DriveController : virtual Controller
 {
