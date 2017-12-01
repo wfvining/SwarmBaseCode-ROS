@@ -77,5 +77,8 @@ struct Result {
   float wristAngle = -1;
   PIDType PIDMode;
 
+  bool set_velocity = false;
+  float velocity;
+
   bool reset;
 };

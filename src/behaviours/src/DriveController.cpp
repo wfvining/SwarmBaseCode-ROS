@@ -28,6 +28,7 @@ void DriveController::Reset()
 
 Result DriveController::DoWork()
 {
+   searchVelocity = DEFAULT_VELOCITY;
 
   if(result.type == behavior)
   {
@@ -166,7 +167,10 @@ Result DriveController::DoWork()
     //cout << "Skid steer, Error yaw:  " << errorYaw << " target heading : " << waypoints.back().theta << " current heading : " << currentLocation.theta << " error distance : " << distance << endl;
     //cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << " currentLoc x : " << currentLocation.x << " y : " << currentLocation.y << endl;
 
-
+    if(distance >= 1.0)
+    {
+       searchVelocity = MAX_VELOCITY;
+    }
 
     // goal not yet reached drive while maintaining proper heading.
     if (fabs(errorYaw) < M_PI_2 &&  distance > waypointTolerance)
