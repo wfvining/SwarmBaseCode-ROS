@@ -377,7 +377,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
     
     
     //adds a blank space between sets of debugging data to easily tell one tick from the next
-    cout << endl;
+    // cout << endl;
     
   }
   
@@ -569,7 +569,6 @@ void clusterHandler(const swarmie_msgs::Cluster& event)
     wp.y = event.y;
     wp.theta = 0.0;
     logicController.AddWaypoint(wp);
-    cout << "Moving to waypoint to find cluster!" << endl;
   }
 }
 

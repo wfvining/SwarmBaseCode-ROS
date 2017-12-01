@@ -26,9 +26,10 @@ void SearchController::AddWaypoint(Point wpt) {
   {
     return;
   }
+  result.wpts.waypoints.clear();
   result.wpts.waypoints.push_back(wpt);
   this->searchingCluster = true;
-  cout << "Cluster is " << hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) << " meters away" << endl;
+  cout << "Cluster is " << hypot(wpt.x-currentLocation.x, wpt.y-currentLocation.y) << " meters away" << endl;
   cout << "Added Waypoint to cluster" << endl;
 }
 
