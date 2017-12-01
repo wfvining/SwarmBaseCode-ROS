@@ -26,7 +26,7 @@ public:
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
-  void TwoPhaseWalk(Point searchLocation);//Two Phase Walk implementation
+  void TwoPhaseWalk();//Two Phase Walk implementation
 
 protected:
 
@@ -51,9 +51,8 @@ private:
   bool succesfullPickup = false;
   /* A fixed value that determines how correlated the direction of the next step is with the  direction of the previous step */
 
-  int state1;
-  int state2;
-  int globalCounter;
+  int state = 1;
+  int globalCounter = 0;
    
 };
 

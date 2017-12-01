@@ -15,9 +15,7 @@ SearchController::SearchController() {
   result.fingerAngle = M_PI/2;
   result.wristAngle = M_PI/4;
 
- state1 = 1;
- state2 = 0;
-
+  state = 1;
 }
 
 void SearchController::Reset() {
@@ -47,14 +45,10 @@ Result SearchController::DoWork() {
   {
     attemptCount = 1;
 
-  
-
     result.type = waypoint;
-    Point searchLocation;
-    
-    TwoPhaseWalk(searchLocation);
-   
-     
+       
+    TwoPhaseWalk();
+        
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
    
@@ -101,9 +95,8 @@ void SearchController::SetSuccesfullPickup() {
 /*********************************************************/
 /*       Two Phase Walk Implementation                   */
 /********************************************************/
-void SearchController::TwoPhaseWalk(Point SearchLocation)
+void SearchController::TwoPhaseWalk()
 {
-    globalCounter++;
    /* Initiate the first way point to be 30 cm  away from current location*/   
    if (first_waypoint)
    {
@@ -120,40 +113,31 @@ void SearchController::TwoPhaseWalk(Point SearchLocation)
    /* Continue Phase 1 of a two phase walk */
    else
    {      
-      if(state1 == 1 && globalCounter != 5 && state2 == 0)
+      if(state == 1)
       {
         //select new heading from Gaussian distribution around current heading
+         // just go whatever directio we are already faing
         searchLocation.theta = rng->gaussian(currentLocation.theta,1.5708); //90 degrees in radians
-        searchLocation.x = currentLocation.x + (0.3 * cos(searchLocation.theta));// 20 cm
-        searchLocation.y = currentLocation.y + (0.3 * sin(searchLocation.theta));// 20 cm
-        cout << "Rover is in Phase 1\n";    
+        searchLocation.x = currentLocation.x + (2.0 * cos(searchLocation.theta));// 2 m
+        searchLocation.y = currentLocation.y + (2.0 * sin(searchLocation.theta));// 2 m
+        cout << "Rover is in Phase 1\n";
+        state = 2;
+        globalCounter = 0;
       }
-   
-
-      if(state2 == 1 && globalCounter != 10 && state1 == 0)
+      else if(state == 2)
       {
         searchLocation.theta = rng->gaussian(currentLocation.theta,1.5708); //90 degrees in radians
-        searchLocation.x = currentLocation.x + (0.4 * cos(searchLocation.theta));// 20 cm
-        searchLocation.y = currentLocation.y + (0.4 * sin(searchLocation.theta));// 20 cm
-        cout << "Rover is in Phase 2\n";
-                   
+        searchLocation.x = currentLocation.x + (0.2 * cos(searchLocation.theta));// 20 cm
+        searchLocation.y = currentLocation.y + (0.2 * sin(searchLocation.theta));// 20 cm
+        cout << "Rover is in Phase 2 [" << globalCounter << "]: (" << searchLocation.x << "," << searchLocation.y << ")" << std::endl;;
+        globalCounter++;
       }
 
-     if(globalCounter == 5)
-     {
-       state1 = 0;
-       state2 = 1;
-       cout << "Transitioning into Phase 2\n";
-     }
-
-     else if(globalCounter == 10)
-     {
-       state1 = 1;
-       state2 = 0;
-       globalCounter = 0;
-       cout << "Transitioning into Phase 1\n";
-     }
-   
+      if(globalCounter == 10)
+      {
+         state = 1;
+         cout << "Transitioning into Phase 1\n";
+      }
    }
 
 }
