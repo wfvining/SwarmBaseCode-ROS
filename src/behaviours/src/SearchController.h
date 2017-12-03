@@ -27,6 +27,7 @@ public:
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
   void AddWaypoint(Point wpt);
+  void TwoPhaseWalk();//Two Phase Walk implementation
 
 protected:
 
@@ -38,8 +39,11 @@ private:
   Point currentLocation;
   Point centerLocation;
   Point searchLocation;
+
+  Point initialLocation; /* Keep track of starting position */
+
   int attemptCount = 0;
-  int maxAttempts = 5;
+  int maxAttempts = 2;
   //struct for returning data to ROS adapter
   Result result;
 
@@ -48,7 +52,12 @@ private:
   bool searchingCluster = false;
   bool first_waypoint = true;
   bool succesfullPickup = false;
-  bool site_fidelity = false;
+  bool site_fidelity = true;
+  /* A fixed value that determines how correlated the direction of the next step is with the  direction of the previous step */
+
+  int state = 1;
+  int globalCounter = 0;
+   
 };
 
 #endif /* SEARCH_CONTROLLER */

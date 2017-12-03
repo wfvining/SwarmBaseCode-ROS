@@ -75,6 +75,8 @@ private:
   //Count of tags on the left and right, respectively
   int countLeft;
   int countRight;
+  int numPositiveTags;
+  int numNegativeTags;
 
   //Center and current locations as of the last call to setLocationData
   Point centerLocation;

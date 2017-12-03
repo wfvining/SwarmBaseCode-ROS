@@ -15,6 +15,8 @@ SearchController::SearchController() {
 
   result.fingerAngle = M_PI/2;
   result.wristAngle = M_PI/4;
+
+  state = 1;
 }
 
 void SearchController::Reset() {
@@ -47,7 +49,7 @@ Result SearchController::DoWork() {
         this->searchingCluster = false;
         attemptCount = 0;
         site_fidelity = false;
-        maxAttempts = 5;
+        maxAttempts = 2;
       }
       else
       {
@@ -72,29 +74,13 @@ Result SearchController::DoWork() {
   {
     attemptCount = 1;
 
-
     result.type = waypoint;
-    Point searchLocation;
+       
+    TwoPhaseWalk();
 
-    //select new position 50 cm from current location
-    if (first_waypoint)
-    {
-      first_waypoint = false;
-      searchLocation.theta = currentLocation.theta + M_PI;
-      searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
-      searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
-    }
-    else
-    {
-      //select new heading from Gaussian distribution around current heading
-      searchLocation.theta = rng->gaussian(currentLocation.theta, 0.785398); //45 degrees in radians
-      searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
-      searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
-    }
-    this->searchingCluster = false;
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
-    
+   
     return result;
   }
 
@@ -105,12 +91,13 @@ void SearchController::SetCenterLocation(Point centerLocation) {
   float diffX = this->centerLocation.x - centerLocation.x;
   float diffY = this->centerLocation.y - centerLocation.y;
   this->centerLocation = centerLocation;
-
-  for(auto it = result.wpts.waypoints.begin(); it != result.wpts.waypoints.end(); it++)
+  
+  if (!result.wpts.waypoints.empty())
   {
-    it->x -= diffX;
-    it->y -= diffY;
+  result.wpts.waypoints.back().x -= diffX;
+  result.wpts.waypoints.back().y -= diffY;
   }
+  
 }
 
 void SearchController::SetCurrentLocation(Point currentLocation) {
@@ -138,8 +125,62 @@ void SearchController::SetSuccesfullPickup() {
     maxAttempts = 15;
     attemptCount = 1;
     site_fidelity = true;
+    // make sure we go in to the search state when we return
+    state = 2;
+    globalCounter = 0;
   }
   succesfullPickup = true;
 }
+
+/*********************************************************/
+/*       Two Phase Walk Implementation                   */
+/********************************************************/
+void SearchController::TwoPhaseWalk()
+{
+   /* Initiate the first way point to be 30 cm  away from current location*/   
+   if (first_waypoint)
+   {
+      first_waypoint = false;
+     
+      searchLocation.theta = currentLocation.theta + M_PI;
+      searchLocation.x = currentLocation.x + (0.3 * cos(searchLocation.theta)); 
+      searchLocation.y = currentLocation.y + (0.3 * sin(searchLocation.theta));  
+      
+      cout << "Transitioning into Phase 1\n";
+      
+   }
+
+   /* Continue Phase 1 of a two phase walk */
+   else
+   {      
+      if(state == 1)
+      {
+        //select new heading from Gaussian distribution around current heading
+         // just go whatever directio we are already faing
+        searchLocation.theta = rng->gaussian(currentLocation.theta,1.5708); //90 degrees in radians
+        searchLocation.x = currentLocation.x + (2.5 * cos(searchLocation.theta));// 2 m
+        searchLocation.y = currentLocation.y + (2.5 * sin(searchLocation.theta));// 2 m
+        cout << "Rover is in Phase 1\n";
+        state = 2;
+        globalCounter = 0;
+      }
+      else if(state == 2)
+      {
+        searchLocation.theta = rng->gaussian(currentLocation.theta,1.5708); //90 degrees in radians
+        searchLocation.x = currentLocation.x + (0.3 * cos(searchLocation.theta));// 20 cm
+        searchLocation.y = currentLocation.y + (0.3 * sin(searchLocation.theta));// 20 cm
+        cout << "Rover is in Phase 2 [" << globalCounter << "]: (" << searchLocation.x << "," << searchLocation.y << ")" << std::endl;;
+        globalCounter++;
+      }
+
+      if(globalCounter == 5)
+      {
+         state = 1;
+         cout << "Transitioning into Phase 1\n";
+      }
+   }
+
+}
+ 
 
 
