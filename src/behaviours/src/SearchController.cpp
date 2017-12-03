@@ -24,6 +24,7 @@ void SearchController::Reset() {
 void SearchController::AddWaypoint(Point wpt) {
   if (this->searchingCluster || this->site_fidelity)
   {
+    cout << "Found cluster but has site fidelity or is already searching for a cluster" << endl;
     return;
   }
   result.wpts.waypoints.clear();

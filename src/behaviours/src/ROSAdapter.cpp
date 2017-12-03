@@ -462,9 +462,9 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
       msg.clusterSize = numMessages;
       geometry_msgs::PoseStamped tagPose = message->detections[0].pose;
       // Need to get 'global' position of cluster, use first tag as location
-      msg.x = tagPose.pose.position.x + currentLocation.x;
-      msg.y = tagPose.pose.position.y + currentLocation.y;
-      msg.id = message->detections[0].id;
+      msg.x = (centerLocation.x - currentLocation.x) + tagPose.pose.position.x;
+      msg.y = (centerLocation.y - currentLocation.y) + tagPose.pose.position.y;
+      msg.botName = publishedName;
       clusterDiscoveryPublisher.publish(msg);
     }  
     logicController.SetAprilTags(tags);
@@ -562,6 +562,10 @@ void virtualFenceHandler(const std_msgs::Float32MultiArray& message)
 
 void clusterHandler(const swarmie_msgs::Cluster& event)
 {
+  if(event.botName == publishedName)
+  {
+    return;
+  }
   if(event.clusterSize >= 5)
   {
     Point wp;
