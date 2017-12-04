@@ -47,7 +47,8 @@ Result SearchController::DoWork() {
   result.set_velocity = false;
   
   if (!result.wpts.waypoints.empty()) {
-    if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.15) {
+    double distanceFromTarget = hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y); 
+    if (distanceFromTarget < 0.15) {
       result.wpts.waypoints.erase(result.wpts.waypoints.begin());
       if(result.wpts.waypoints.empty()) {
         this->searchingCluster = false;
@@ -60,7 +61,7 @@ Result SearchController::DoWork() {
         attemptCount = 1;
       }
     }
-    else if(hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) > 1.0) {
+    else if(distanceFromTarget > 1.0) {
       result.set_velocity = true;
       result.velocity = MAX_VELOCITY;
     }
@@ -76,6 +77,11 @@ Result SearchController::DoWork() {
   }
   else if (attemptCount >= maxAttempts || attemptCount == 0) 
   {
+    failedSearchAttempts++;
+    if(failedSearchAttempts >= 0 && failedSearchAttempts % 5 == 0)
+    {
+      cout << "Failed Search attempts " << failedSearchAttempts << endl;
+    }
     attemptCount = 1;
 
     result.type = waypoint;
@@ -83,7 +89,7 @@ Result SearchController::DoWork() {
     TwoPhaseWalk();
 
     result.wpts.waypoints.clear();
-    result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
+    result.wpts.waypoints.push_back(searchLocation);
    
     return result;
   }
@@ -92,16 +98,12 @@ Result SearchController::DoWork() {
 
 void SearchController::SetCenterLocation(Point centerLocation) {
   
-  float diffX = this->centerLocation.x - centerLocation.x;
-  float diffY = this->centerLocation.y - centerLocation.y;
-  this->centerLocation = centerLocation;
-  
   if (!result.wpts.waypoints.empty())
   {
-  result.wpts.waypoints.back().x -= diffX;
-  result.wpts.waypoints.back().y -= diffY;
+    result.wpts.waypoints.back().x -= (this->centerLocation.x - centerLocation.x);
+    result.wpts.waypoints.back().y -= (this->centerLocation.y - centerLocation.y);
   }
-  
+  this->centerLocation = centerLocation;
 }
 
 void SearchController::SetCurrentLocation(Point currentLocation) {
@@ -125,10 +127,11 @@ void SearchController::SetSuccesfullPickup() {
   // don't repeatedly set this.
   if(!succesfullPickup) {
     result.wpts.waypoints.clear();
-    result.wpts.waypoints.insert(result.wpts.waypoints.begin(), currentLocation);
+    result.wpts.waypoints.push_back(currentLocation);
     maxAttempts = 15;
     attemptCount = 1;
     site_fidelity = true;
+    searchingCluster = false;
     // make sure we go in to the search state when we return
     state = 2;
     globalCounter = 0;
@@ -149,9 +152,7 @@ void SearchController::TwoPhaseWalk()
       searchLocation.theta = currentLocation.theta + M_PI;
       searchLocation.x = currentLocation.x + (0.3 * cos(searchLocation.theta)); 
       searchLocation.y = currentLocation.y + (0.3 * sin(searchLocation.theta));  
-      
       cout << "Transitioning into Phase 1\n";
-      
    }
 
    /* Continue Phase 1 of a two phase walk */
@@ -161,26 +162,25 @@ void SearchController::TwoPhaseWalk()
       {
         //select new heading from Gaussian distribution around current heading
          // just go whatever directio we are already faing
-         searchLocation.theta = currentLocation.theta + rng->uniformReal(-M_PI/2.0, M_PI/2.0);
+        searchLocation.theta = currentLocation.theta + rng->uniformReal(-M_PI/2.0, M_PI/2.0);
         searchLocation.x = currentLocation.x + (2.5 * cos(searchLocation.theta));// 2 m
         searchLocation.y = currentLocation.y + (2.5 * sin(searchLocation.theta));// 2 m
-        cout << "Rover is in Phase 1\n";
         state = 2;
-        globalCounter = 0;
       }
       else if(state == 2)
       {
-        searchLocation.theta = rng->gaussian(currentLocation.theta,1.5708); //90 degrees in radians
+        searchLocation.theta = currentLocation.theta + rng->uniformReal(-M_PI/2.0, M_PI/2.0); //90 degrees in radians
         searchLocation.x = currentLocation.x + (0.3 * cos(searchLocation.theta));// 20 cm
         searchLocation.y = currentLocation.y + (0.3 * sin(searchLocation.theta));// 20 cm
         cout << "Rover is in Phase 2 [" << globalCounter << "]: (" << searchLocation.x << "," << searchLocation.y << ")" << std::endl;;
         globalCounter++;
       }
 
-      if(globalCounter == 5)
+      if(globalCounter >= 5)
       {
          state = 1;
          cout << "Transitioning into Phase 1\n";
+         globalCounter = 0;
       }
    }
 

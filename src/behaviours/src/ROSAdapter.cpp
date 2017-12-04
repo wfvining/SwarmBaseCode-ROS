@@ -430,12 +430,29 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
   int numMessages = message->detections.size();
   if (numMessages > 0) {
     vector<Tag> tags;
-
+    int numberOfPickUpTargets = 0;
     for (int i = 0; i < numMessages; i++) {
 
       // Package up the ROS AprilTag data into our own type that does not rely on ROS.
       Tag loc;
       loc.setID( message->detections[i].id );
+      if (message->detections[i].id == 0)
+      {
+        numberOfPickUpTargets++;
+      } else if (message->detections[i].id == 256)
+      {
+        Point centerOdom;
+        centerOdom.x = 1.3 * cos(currentLocation.theta);
+        centerOdom.y = 1.3 * sin(currentLocation.theta);
+        centerOdom.theta = centerLocation.theta;
+        logicController.SetCenterLocationOdom(centerOdom);
+        
+        Point centerMap;
+        centerMap.x = currentLocationMap.x + (1.3 * cos(currentLocationMap.theta));
+        centerMap.y = currentLocationMap.y + (1.3 * sin(currentLocationMap.theta));
+        centerMap.theta = centerLocationMap.theta;
+        logicController.SetCenterLocationMap(centerMap);
+      }
 
       // Pass the position of the AprilTag
       geometry_msgs::PoseStamped tagPose = message->detections[i].pose;

@@ -44,6 +44,7 @@ private:
 
   int attemptCount = 0;
   int maxAttempts = 2;
+  int failedSearchAttempts = 0;
   //struct for returning data to ROS adapter
   Result result;
 
