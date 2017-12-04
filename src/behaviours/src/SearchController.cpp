@@ -29,7 +29,7 @@ void SearchController::AddClusterWaypoint(Point wpt) {
     cout << "Found cluster but has site fidelity or is already searching for a cluster" << endl;
     return;
   }
-  if(hypot(wpt.x-currentLocation.x, wpt.y-currentLocation.y) < 0.5 || failedSearchAttempts < 10)
+  if(hypot(wpt.x-currentLocation.x, wpt.y-currentLocation.y) < 0.5 || failedSearchAttempts <= 5)
   {
     cout << "Skipping cluster as it is within 0.5 Meters" << endl;
     return;
@@ -80,7 +80,6 @@ Result SearchController::DoWork() {
   {
     attemptCount = 1;
     result.type = waypoint;
-    failedSearchAttempts++;
     if(failedSearchAttempts >= 0 && failedSearchAttempts % 25 == 0)
     {
       cout << "Failed Search attempts " << failedSearchAttempts << endl;
@@ -164,6 +163,7 @@ void SearchController::TwoPhaseWalk()
    {      
       if(state == 1)
       {
+        failedSearchAttempts++;
         //select new heading from Gaussian distribution around current heading
          // just go whatever directio we are already faing
         searchLocation.theta = currentLocation.theta + rng->uniformReal(-M_PI/2.0, M_PI/2.0);
