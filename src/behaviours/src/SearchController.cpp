@@ -23,16 +23,20 @@ void SearchController::Reset() {
   result.reset = false;
 }
 
-void SearchController::AddWaypoint(Point wpt) {
-  if (this->searchingCluster || this->site_fidelity)
+void SearchController::AddClusterWaypoint(Point wpt) {
+  if (this->searchingCluster || this->site_fidelity || this->succesfullPickup)
   {
     cout << "Found cluster but has site fidelity or is already searching for a cluster" << endl;
     return;
   }
+  if(hypot(wpt.x-currentLocation.x, wpt.y-currentLocation.y) < 0.5)
+  {
+    cout << "Skipping cluster as it is within 0.5 Meters" << endl;
+  }
   result.wpts.waypoints.clear();
   result.wpts.waypoints.push_back(wpt);
   this->searchingCluster = true;
-  cout << "Cluster is " << hypot(wpt.x-currentLocation.x, wpt.y-currentLocation.y) << " meters away" << endl;
+  // cout << "Cluster is " << hypot(wpt.x-currentLocation.x, wpt.y-currentLocation.y) << " meters away" << endl;
   cout << "Added Waypoint to cluster" << endl;
 }
 

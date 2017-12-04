@@ -452,10 +452,10 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
     }
     // Any time a cluster of 3 or more tags are found, send a message.
     // Rovers can decide whether to care about such small clusters
-    if (numMessages > 2)
+    if (numberOfPickUpTargets > 2)
     {
       swarmie_msgs::Cluster msg;
-      msg.clusterSize = numMessages;
+      msg.clusterSize = numberOfPickUpTargets;
       geometry_msgs::PoseStamped tagPose = message->detections[0].pose;
       // Need to get 'global' position of cluster, use first tag as location
       msg.x = (currentLocation.x - centerLocation.x) + tagPose.pose.position.x;
@@ -562,13 +562,13 @@ void clusterHandler(const swarmie_msgs::Cluster& event)
   {
     return;
   }
-  if(event.clusterSize >= 5)
+  if(event.clusterSize >= 4)
   {
     Point wp;
     wp.x = centerLocation.x + event.x;
     wp.y = centerLocation.y + event.y;
     wp.theta = 0.0;
-    logicController.AddWaypoint(wp);
+    logicController.AddClusterWaypoint(wp);
   }
 }
 

@@ -26,7 +26,7 @@ public:
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
-  void AddWaypoint(Point wpt);
+  void AddClusterWaypoint(Point wpt);
   void TwoPhaseWalk();//Two Phase Walk implementation
 
 protected:
