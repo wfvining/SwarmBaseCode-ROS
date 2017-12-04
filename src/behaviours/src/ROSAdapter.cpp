@@ -431,6 +431,7 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
   if (numMessages > 0) {
     vector<Tag> tags;
     int numberOfPickUpTargets = 0;
+    bool nearCenter = false;
     for (int i = 0; i < numMessages; i++) {
 
       // Package up the ROS AprilTag data into our own type that does not rely on ROS.
@@ -441,17 +442,7 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
         numberOfPickUpTargets++;
       } else if (message->detections[i].id == 256)
       {
-        Point centerOdom;
-        centerOdom.x = 1.3 * cos(currentLocation.theta);
-        centerOdom.y = 1.3 * sin(currentLocation.theta);
-        centerOdom.theta = centerLocation.theta;
-        logicController.SetCenterLocationOdom(centerOdom);
-        
-        Point centerMap;
-        centerMap.x = currentLocationMap.x + (1.3 * cos(currentLocationMap.theta));
-        centerMap.y = currentLocationMap.y + (1.3 * sin(currentLocationMap.theta));
-        centerMap.theta = centerLocationMap.theta;
-        logicController.SetCenterLocationMap(centerMap);
+        nearCenter = true;
       }
 
       // Pass the position of the AprilTag
@@ -469,7 +460,7 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
     }
     // Any time a cluster of 3 or more tags are found, send a message.
     // Rovers can decide whether to care about such small clusters
-    if (numberOfPickUpTargets > 2)
+    if (!nearCenter && numberOfPickUpTargets > 2)
     {
       swarmie_msgs::Cluster msg;
       msg.clusterSize = numberOfPickUpTargets;
