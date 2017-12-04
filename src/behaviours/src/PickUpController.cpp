@@ -278,9 +278,9 @@ Result PickUpController::DoWork()
     else if (blockDistance > targetDistance && !lockTarget) //if a target is detected but not locked, and not too close.
     {
       // this is a 3-line P controller, where Kp = 0.20
-      float vel = blockDistance * 0.20;
+      float vel = blockDistance * 1.20;
       if (vel < 0.1) vel = 0.1;
-      if (vel > 0.2) vel = 0.2;
+      else  vel = 0.2;
 
       result.pd.cmdVel = vel;
       result.pd.cmdAngularError = -blockYawError;
