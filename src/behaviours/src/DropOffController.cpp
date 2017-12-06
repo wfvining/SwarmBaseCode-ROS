@@ -150,14 +150,17 @@ Result DropOffController::DoWork() {
 
     if (seenEnoughCenterTags) //if we have seen enough tags
     {
-      int offsetFactor = rng->uniformInteger(4, 6);
-      if ((countLeft - offsetFactor) > countRight) //and there are too many on the left
+      if (abs(countLeft - countRight) > 1)
       {
-        right = false; //then we say none on the right to cause us to turn right
-      }
-      else if ((countRight - offsetFactor) > countLeft)
-      {
-        left = false; //or left in this case
+        int offsetFactor = rng->uniformInteger(2, 4);
+        if ((countLeft - offsetFactor) > countRight) //and there are too many on the left
+        {
+          right = false; //then we say none on the right to cause us to turn right
+        }
+        else if ((countRight - offsetFactor) > countLeft)
+        {
+          left = false; //or left in this case
+        }
       }
     }
 
