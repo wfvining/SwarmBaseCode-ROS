@@ -1,7 +1,7 @@
 #include "DropOffController.h"
 
 DropOffController::DropOffController() {
-
+  rng = new random_numbers::RandomNumberGenerator();
   reachedCollectionPoint = false;
 
   result.type = behavior;
@@ -135,7 +135,7 @@ Result DropOffController::DoWork() {
   if (count > 0 || seenEnoughCenterTags || prevCount > 0) //if we have a target and the center is located drive towards it.
   {
 
-    cout << "9" << endl;
+    cout << "Attempting to reach the center" << endl;
     centerSeen = true;
 
     if (first_center && isPrecisionDriving)
@@ -150,20 +150,24 @@ Result DropOffController::DoWork() {
 
     if (seenEnoughCenterTags) //if we have seen enough tags
     {
-      if ((countLeft-5) > countRight) //and there are too many on the left
+      int offsetFactor = rng->uniformInteger(4, 6);
+      if ((countLeft - offsetFactor) > countRight) //and there are too many on the left
       {
         right = false; //then we say none on the right to cause us to turn right
       }
-      else if ((countRight-5) > countLeft)
+      else if ((countRight - offsetFactor) > countLeft)
       {
         left = false; //or left in this case
       }
     }
 
-    float turnDirection = 1;
+    float turnDirection = rng->uniformReal(1, 3); // Was set to 1, but less randomize it a bit
     //reverse tag rejection when we have seen enough tags that we are on a
     //trajectory in to the square we dont want to follow an edge.
-    if (seenEnoughCenterTags) turnDirection = -3;
+    if (seenEnoughCenterTags)
+    {
+      turnDirection = -turnDirection;
+    }
 
     result.type = precisionDriving;
 

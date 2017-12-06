@@ -5,6 +5,7 @@
 #include "Controller.h"
 #include "Tag.h"
 #include <math.h>
+#include <random_numbers/random_numbers.h>
 
 class DropOffController : virtual Controller
 {
@@ -49,7 +50,7 @@ private:
   const float dropDelay = 0.5; //delay in seconds for dropOff
 
 
-
+  random_numbers::RandomNumberGenerator* rng;
   //Instance Variables
 
   /*
