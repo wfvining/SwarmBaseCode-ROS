@@ -249,6 +249,7 @@ Result DropOffController::DoWork() {
   if(seenEnoughCenterTags && numPositiveTags == 0)
   {
     reachedCollectionPoint = true;
+    UpdateCenterLocation();
     centerApproach = false;
     returnTimer = current_time;
   }
@@ -256,11 +257,18 @@ Result DropOffController::DoWork() {
   if (!centerSeen && seenEnoughCenterTags)
   {
     reachedCollectionPoint = true;
+    UpdateCenterLocation();
     centerApproach = false;
     returnTimer = current_time;
   }
 
   return result;
+}
+
+void DropOffController::UpdateCenterLocation()
+{
+   centerLocation.x = currentLocation.x;
+   centerLocation.y = currentLocation.y;
 }
 
 void DropOffController::Reset() {
@@ -308,6 +316,7 @@ void DropOffController::SetTargetData(vector<Tag> tags) {
       // this loop is to get the number of center tags
       for (int i = 0; i < tags.size(); i++) {
         if (tags[i].getID() == 256) {
+           UpdateCenterLocation();
 
           if(tags[i].calcYaw() >= 0.0)
           {

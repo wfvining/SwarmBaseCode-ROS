@@ -34,6 +34,7 @@ public:
 private:
 
   void ProcessData();
+  void UpdateCenterLocation();
 
   //Constants
 
