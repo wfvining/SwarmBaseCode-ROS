@@ -19,7 +19,7 @@ void ObstacleController::Reset() {
 void ObstacleController::avoidObstacle() {
   
     //obstacle on right side
-    if (right < 0.8 || center < 0.8 || left < 0.8) {
+    if (right < 0.7 || center < 0.7 || left < 0.7) {
       result.type = precisionDriving;
 
       result.pd.cmdAngular = -K_angular;
