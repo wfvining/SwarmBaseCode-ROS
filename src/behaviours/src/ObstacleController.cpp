@@ -17,7 +17,6 @@ void ObstacleController::Reset() {
 
 // Avoid crashing into objects detected by the ultraound
 void ObstacleController::avoidObstacle() {
-  
     //obstacle on right side
     if (right < 0.8 || center < 0.8 || left < 0.8) {
       result.type = precisionDriving;
@@ -100,11 +99,10 @@ void ObstacleController::setCurrentLocation(Point currentLocation) {
 void ObstacleController::ProcessData() {
 
   //timeout timer for no tag messages
-  long int Tdifference = current_time - timeSinceTags;
-  float Td = Tdifference/1e3;
+  float Td = (current_time - timeSinceTags) /1e3f;
   if (Td >= 0.5) {
     collection_zone_seen = false;
-    phys= false;
+    phys = false;
     if (!obstacleAvoided)
     {
       can_set_waypoint = true;
@@ -160,37 +158,34 @@ void ObstacleController::setTagData(vector<Tag> tags){
 
   // this loop is to get the number of center tags
   if (!targetHeld) {
-    for (int i = 0; i < tags.size(); i++) {
-      if (tags[i].getID() == 256) {
-
-	collection_zone_seen = checkForCollectionZoneTags( tags );
-        timeSinceTags = current_time;
-      }
-    }
+    collection_zone_seen = checkForCollectionZoneTags(tags);
+    timeSinceTags = current_time;
   }
 }
 
 bool ObstacleController::checkForCollectionZoneTags( vector<Tag> tags ) {
-
+  bool hasCollectionZoneTag = false;
   for ( auto & tag : tags ) { 
-
+    if(tag.getID() != 256)
+    {
+      continue;
+    }
     // Check the orientation of the tag. If we are outside the collection zone the yaw will be positive so treat the collection zone as an obstacle. If the yaw is negative the robot is inside the collection zone and the boundary should not be treated as an obstacle. This allows the robot to leave the collection zone after dropping off a target.
     if ( tag.calcYaw() > 0 ) 
-      {
-	// checks if tag is on the right or left side of the image
-	if (tag.getPositionX() + camera_offset_correction > 0) {
-	  count_right_collection_zone_tags++;
-	  
-	} else {
-	  count_left_collection_zone_tags++;
-	}
-      }
+    {
+	    // checks if tag is on the right or left side of the image
+    	if (tag.getPositionX() + camera_offset_correction > 0) {
+    	  count_right_collection_zone_tags++;
+    	} else {
+    	  count_left_collection_zone_tags++;
+    	}
+      hasCollectionZoneTag = true;
+    }
     
   }
 
-
   // Did any tags indicate that the robot is inside the collection zone?
-  return count_left_collection_zone_tags + count_right_collection_zone_tags > 0;
+  return hasCollectionZoneTag;
 
 }
 
@@ -202,15 +197,12 @@ bool ObstacleController::ShouldInterrupt() {
     obstacleInterrupt = true;
     return true;
   }
-  else
+  else if (obstacleAvoided && obstacleDetected)
   {
-    if(obstacleAvoided && obstacleDetected)
-    {
-      Reset();
-      return true;
-    } else {
-      return false;
-    }
+    Reset();
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -235,7 +227,6 @@ void ObstacleController::setCurrentTimeInMilliSecs( long int time )
 
 void ObstacleController::setTargetHeld() {
   targetHeld = true;
-
 
   if (previousTargetState == false) {
     obstacleAvoided = true;
