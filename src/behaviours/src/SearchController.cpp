@@ -143,7 +143,7 @@ void SearchController::TwoPhaseWalk()
       {
         //select new heading from Gaussian distribution around current heading
          // just go whatever directio we are already faing
-        searchLocation.theta = rng->gaussian(currentLocation.theta,1.5708); //90 degrees in radians
+         searchLocation.theta = currentLocation.theta + rng->uniformReal(-M_PI/2.0, M_PI/2.0);
         searchLocation.x = currentLocation.x + (2.5 * cos(searchLocation.theta));// 2 m
         searchLocation.y = currentLocation.y + (2.5 * sin(searchLocation.theta));// 2 m
         cout << "Rover is in Phase 1\n";
