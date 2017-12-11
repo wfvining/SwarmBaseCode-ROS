@@ -118,6 +118,13 @@ void SearchController::SetSuccesfullPickup() {
   succesfullPickup = true;
 }
 
+double SearchController::GetExp(double mean)
+{
+   double lambda = 1.0/mean;
+   double u = rng->uniformReal(0.0,1.0);
+   return -log(1.0-u) / lambda;
+}
+
 /*********************************************************/
 /*       Two Phase Walk Implementation                   */
 /********************************************************/
@@ -141,11 +148,12 @@ void SearchController::TwoPhaseWalk()
    {      
       if(state == 1)
       {
+         double distance = GetExp(2.75);
         //select new heading from Gaussian distribution around current heading
          // just go whatever directio we are already faing
          searchLocation.theta = currentLocation.theta + rng->uniformReal(-M_PI/2.0, M_PI/2.0);
-        searchLocation.x = currentLocation.x + (2.5 * cos(searchLocation.theta));// 2 m
-        searchLocation.y = currentLocation.y + (2.5 * sin(searchLocation.theta));// 2 m
+        searchLocation.x = currentLocation.x + (distance * cos(searchLocation.theta));// 2 m
+        searchLocation.y = currentLocation.y + (distance * sin(searchLocation.theta));// 2 m
         cout << "Rover is in Phase 1\n";
         state = 2;
         globalCounter = 0;
