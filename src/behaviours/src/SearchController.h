@@ -26,7 +26,6 @@ public:
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
-  void TwoPhaseWalk();//Two Phase Walk implementation
 
 protected:
 
@@ -34,6 +33,9 @@ protected:
 
 private:
 
+  double GetExp(double mean);
+  void TwoPhaseWalk();//Two Phase Walk implementation
+  
   random_numbers::RandomNumberGenerator* rng;
   Point currentLocation;
   Point centerLocation;
