@@ -262,48 +262,44 @@ void behaviourStateMachine(const ros::TimerEvent&)
   // time since timerStartTime was set to current time
   timerTimeElapsed = time(0) - timerStartTime;
   
-  // init code goes here. (code that runs only once at start of
-  // auto mode but wont work in main goes here)
-  if (!initilized)
-  {
-
-    if (timerTimeElapsed > startDelayInSeconds)
-    {
-
-      // initialization has run
-      initilized = true;
-      //TODO: this just sets center to 0 over and over and needs to change
-      Point centerOdom;
-      centerOdom.x = 1.3 * cos(currentLocation.theta);
-      centerOdom.y = 1.3 * sin(currentLocation.theta);
-      centerOdom.theta = centerLocation.theta;
-      logicController.SetCenterLocationOdom(centerOdom);
-      
-      Point centerMap;
-      centerMap.x = currentLocationMap.x + (1.3 * cos(currentLocationMap.theta));
-      centerMap.y = currentLocationMap.y + (1.3 * sin(currentLocationMap.theta));
-      centerMap.theta = centerLocationMap.theta;
-      logicController.SetCenterLocationMap(centerMap);
-      
-      centerLocationMap.x = centerMap.x;
-      centerLocationMap.y = centerMap.y;
-      
-      centerLocationOdom.x = centerOdom.x;
-      centerLocationOdom.y = centerOdom.y;
-      
-      startTime = getROSTimeInMilliSecs();
-    }
-
-    else
-    {
-      return;
-    }
-    
-  }
-
   // Robot is in automode
   if (currentMode == 2 || currentMode == 3)
   {
+     // init code goes here. (code that runs only once at start of
+     // auto mode but wont work in main goes here)
+     if (!initilized)
+     {
+        if (timerTimeElapsed > startDelayInSeconds)
+        {
+           // initialization has run
+           initilized = true;
+           //TODO: this just sets center to 0 over and over and needs to change
+           Point centerOdom;
+           centerOdom.x = 1.3 * cos(currentLocation.theta);
+           centerOdom.y = 1.3 * sin(currentLocation.theta);
+           centerOdom.theta = centerLocation.theta;
+           logicController.SetCenterLocationOdom(centerOdom);
+      
+           Point centerMap;
+           centerMap.x = currentLocationMap.x + (1.3 * cos(currentLocationMap.theta));
+           centerMap.y = currentLocationMap.y + (1.3 * sin(currentLocationMap.theta));
+           centerMap.theta = centerLocationMap.theta;
+           logicController.SetCenterLocationMap(centerMap);
+      
+           centerLocationMap.x = centerMap.x;
+           centerLocationMap.y = centerMap.y;
+      
+           centerLocationOdom.x = centerOdom.x;
+           centerLocationOdom.y = centerOdom.y;
+      
+           startTime = getROSTimeInMilliSecs();
+        }
+        else
+        {
+           return;
+        }
+     }
+
     
     humanTime();
     
@@ -422,7 +418,7 @@ void sendDriveCommand(double left, double right)
  *************************/
 
 void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& message) {
-  
+
   if (message->detections.size() > 0) {
     vector<Tag> tags;
 
@@ -592,7 +588,7 @@ void joyCmdHandler(const sensor_msgs::Joy::ConstPtr& message) {
 
 void publishStatusTimerEventHandler(const ros::TimerEvent&) {
   std_msgs::String msg;
-  msg.data = "online";
+  msg.data = "Albatross";
   status_publisher.publish(msg);
 }
 

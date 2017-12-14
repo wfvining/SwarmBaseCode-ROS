@@ -246,14 +246,29 @@ Result DropOffController::DoWork() {
 
   }
 
+  if(seenEnoughCenterTags && numPositiveTags == 0)
+  {
+    reachedCollectionPoint = true;
+    UpdateCenterLocation();
+    centerApproach = false;
+    returnTimer = current_time;
+  }
+  
   if (!centerSeen && seenEnoughCenterTags)
   {
     reachedCollectionPoint = true;
+    UpdateCenterLocation();
     centerApproach = false;
     returnTimer = current_time;
   }
 
   return result;
+}
+
+void DropOffController::UpdateCenterLocation()
+{
+   centerLocation.x = currentLocation.x;
+   centerLocation.y = currentLocation.y;
 }
 
 void DropOffController::Reset() {
@@ -292,6 +307,8 @@ void DropOffController::SetTargetData(vector<Tag> tags) {
   countRight = 0;
   countLeft = 0;
 
+  numPositiveTags = 0;
+
   if(targetHeld) {
     // if a target is detected and we are looking for center tags
     if (tags.size() > 0 && !reachedCollectionPoint) {
@@ -299,7 +316,17 @@ void DropOffController::SetTargetData(vector<Tag> tags) {
       // this loop is to get the number of center tags
       for (int i = 0; i < tags.size(); i++) {
         if (tags[i].getID() == 256) {
+           UpdateCenterLocation();
 
+          if(tags[i].calcYaw() >= 0.0)
+          {
+            numPositiveTags++;
+          }
+          else
+          {
+            numNegativeTags++;
+          }
+          
           // checks if tag is on the right or left side of the image
           if (tags[i].getPositionX() + cameraOffsetCorrection > 0) {
             countRight++;
@@ -309,6 +336,7 @@ void DropOffController::SetTargetData(vector<Tag> tags) {
           }
         }
       }
+      std::cout << "[dropoff] positive tags: " << numPositiveTags << "num tags: " << tags.size();
     }
   }
 
