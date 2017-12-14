@@ -333,7 +333,6 @@ void LogicController::SetSonarData(float left, float center, float right)
   obstacleController.setSonarData(left,center,right);
 }
 
-// Called once by RosAdapter in guarded init
 void LogicController::SetCenterLocationOdom(Point centerLocationOdom) 
 {
   searchController.SetCenterLocation(centerLocationOdom);

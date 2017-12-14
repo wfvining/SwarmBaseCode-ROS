@@ -37,6 +37,8 @@
 
 #include <exception> // For exception handling
 
+#define CENTER_TAG_ID 256
+
 using namespace std;
 
 // Define Exceptions
@@ -440,6 +442,13 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
 							    tagPose.pose.orientation.z,
 							    tagPose.pose.orientation.w ) );
       tags.push_back(loc);
+      if(loc.getID() == CENTER_TAG_ID)
+      {
+         centerLocationMap.x = currentLocationMap.x;
+         centerLocationMap.y = currentLocationMap.y;
+         centerLocationOdom.x = currentLocation.x;
+         centerLocationOdom.y = currentLocation.y;
+      }
     }
     
     logicController.SetAprilTags(tags);
