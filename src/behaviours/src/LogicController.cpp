@@ -188,6 +188,11 @@ Result LogicController::DoWork() {
   return result;
 }
 
+void LogicController::AddClusterWaypoint(Point wpt)
+{
+  searchController.AddClusterWaypoint(wpt);
+}
+
 void LogicController::UpdateData() 
 {
 

@@ -38,6 +38,7 @@ public:
   bool ShouldInterrupt() override;
   bool HasWork() override;
 
+  void AddClusterWaypoint(Point wpt);
   void SetAprilTags(vector<Tag> tags);
   void SetSonarData(float left, float center, float right);
   void SetPositionData(Point currentLocation);

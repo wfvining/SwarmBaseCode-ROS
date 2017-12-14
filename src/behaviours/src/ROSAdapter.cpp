@@ -22,6 +22,9 @@
 #include <apriltags_ros/AprilTagDetectionArray.h>
 #include <std_msgs/Float32MultiArray.h>
 #include "swarmie_msgs/Waypoint.h"
+#include "swarmie_msgs/Cluster.h"
+
+
 
 // Include Controllers
 #include "LogicController.h"
@@ -130,6 +133,7 @@ ros::Publisher infoLogPublisher;
 ros::Publisher driveControlPublish;
 ros::Publisher heartbeatPublisher;
 ros::Publisher waypointFeedbackPublisher;
+ros::Publisher clusterDiscoveryPublisher;
 
 // Subscribers
 ros::Subscriber joySubscriber;
@@ -139,6 +143,7 @@ ros::Subscriber odometrySubscriber;
 ros::Subscriber mapSubscriber;
 ros::Subscriber virtualFenceSubscriber;
 ros::Subscriber manualWaypointSubscriber;
+ros::Subscriber clusterDiscoverySubscriber;
 
 // Timers
 ros::Timer stateMachineTimer;
@@ -170,6 +175,7 @@ void manualWaypointHandler(const swarmie_msgs::Waypoint& message);
 void behaviourStateMachine(const ros::TimerEvent&);
 void publishStatusTimerEventHandler(const ros::TimerEvent& event);
 void publishHeartBeatTimerEventHandler(const ros::TimerEvent& event);
+void clusterHandler(const swarmie_msgs::Cluster& event);
 void sonarHandler(const sensor_msgs::Range::ConstPtr& sonarLeft, const sensor_msgs::Range::ConstPtr& sonarCenter, const sensor_msgs::Range::ConstPtr& sonarRight);
 
 // Converts the time passed as reported by ROS (which takes Gazebo simulation rate into account) into milliseconds as an integer.
@@ -203,9 +209,11 @@ int main(int argc, char **argv) {
   mapSubscriber = mNH.subscribe((publishedName + "/odom/ekf"), 10, mapHandler);
   virtualFenceSubscriber = mNH.subscribe(("/virtualFence"), 10, virtualFenceHandler);
   manualWaypointSubscriber = mNH.subscribe((publishedName + "/waypoints/cmd"), 10, manualWaypointHandler);
+  clusterDiscoverySubscriber = mNH.subscribe("/clusters", 2, clusterHandler);
   message_filters::Subscriber<sensor_msgs::Range> sonarLeftSubscriber(mNH, (publishedName + "/sonarLeft"), 10);
   message_filters::Subscriber<sensor_msgs::Range> sonarCenterSubscriber(mNH, (publishedName + "/sonarCenter"), 10);
   message_filters::Subscriber<sensor_msgs::Range> sonarRightSubscriber(mNH, (publishedName + "/sonarRight"), 10);
+  
   
   status_publisher = mNH.advertise<std_msgs::String>((publishedName + "/status"), 1, true);
   stateMachinePublish = mNH.advertise<std_msgs::String>((publishedName + "/state_machine"), 1, true);
@@ -215,6 +223,7 @@ int main(int argc, char **argv) {
   driveControlPublish = mNH.advertise<geometry_msgs::Twist>((publishedName + "/driveControl"), 10);
   heartbeatPublisher = mNH.advertise<std_msgs::String>((publishedName + "/behaviour/heartbeat"), 1, true);
   waypointFeedbackPublisher = mNH.advertise<swarmie_msgs::Waypoint>((publishedName + "/waypoints"), 1, true);
+  clusterDiscoveryPublisher = mNH.advertise<swarmie_msgs::Cluster>("/clusters", 1, true);
 
   publish_status_timer = mNH.createTimer(ros::Duration(status_publish_interval), publishStatusTimerEventHandler);
   stateMachineTimer = mNH.createTimer(ros::Duration(behaviourLoopTimeStep), behaviourStateMachine);
@@ -364,7 +373,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
     
     
     //adds a blank space between sets of debugging data to easily tell one tick from the next
-    cout << endl;
+    // cout << endl;
     
   }
   
@@ -418,15 +427,23 @@ void sendDriveCommand(double left, double right)
  *************************/
 
 void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& message) {
-
-  if (message->detections.size() > 0) {
+  int numMessages = message->detections.size();
+  if (numMessages > 0) {
     vector<Tag> tags;
-
-    for (int i = 0; i < message->detections.size(); i++) {
+    int numberOfPickUpTargets = 0;
+    bool nearCenter = false;
+    for (int i = 0; i < numMessages; i++) {
 
       // Package up the ROS AprilTag data into our own type that does not rely on ROS.
       Tag loc;
       loc.setID( message->detections[i].id );
+      if (message->detections[i].id == 0)
+      {
+        numberOfPickUpTargets++;
+      } else if (message->detections[i].id == 256)
+      {
+        nearCenter = true;
+      }
 
       // Pass the position of the AprilTag
       geometry_msgs::PoseStamped tagPose = message->detections[i].pose;
@@ -441,7 +458,19 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
 							    tagPose.pose.orientation.w ) );
       tags.push_back(loc);
     }
-    
+    // Any time a cluster of 3 or more tags are found, send a message.
+    // Rovers can decide whether to care about such small clusters
+    if (!nearCenter && numberOfPickUpTargets > 2)
+    {
+      swarmie_msgs::Cluster msg;
+      msg.clusterSize = numberOfPickUpTargets;
+      geometry_msgs::PoseStamped tagPose = message->detections[0].pose;
+      // Need to get 'global' position of cluster, use first tag as location
+      msg.x = (currentLocation.x - centerLocation.x) + tagPose.pose.position.x;
+      msg.y = (currentLocation.y - centerLocation.y) + tagPose.pose.position.y;
+      msg.botName = publishedName;
+      clusterDiscoveryPublisher.publish(msg);
+    }  
     logicController.SetAprilTags(tags);
   }
   
@@ -532,6 +561,22 @@ void virtualFenceHandler(const std_msgs::Float32MultiArray& message)
       throw ROSAdapterRangeShapeInvalidTypeException("Unknown Shape type in ROSAdapter.cpp:virtualFenceHandler()");
     }
     }
+  }
+}
+
+void clusterHandler(const swarmie_msgs::Cluster& event)
+{
+  if(event.botName == publishedName)
+  {
+    return;
+  }
+  if(event.clusterSize >= 4)
+  {
+    Point wp;
+    wp.x = centerLocation.x + event.x;
+    wp.y = centerLocation.y + event.y;
+    wp.theta = 0.0;
+    logicController.AddClusterWaypoint(wp);
   }
 }
 
