@@ -22,6 +22,13 @@ DropOffController::DropOffController() {
   isPrecisionDriving = false;
   startWaypoint = false;
   timerTimeElapsed = -1;
+  
+  //Two Phase Walk Code
+  rng = new random_numbers::RandomNumberGenerator();
+  state = 1;
+  currentLocation.x = 0;
+  currentLocation.y = 0;
+  currentLocation.theta = 0;
 
 }
 
@@ -92,7 +99,8 @@ Result DropOffController::DoWork() {
     return result;
 
   }
-  else if (timerTimeElapsed >= 2)//spin search for center
+ 
+  else if (timerTimeElapsed >= 2 && timerTimeElapsed <= 10)//spin search for center:
   {
     Point nextSpinPoint;
 
@@ -119,6 +127,11 @@ Result DropOffController::DoWork() {
     returnTimer = current_time;
     timerTimeElapsed = 0;
 
+  }
+  /* If we havent found the center within 10 second using spiral search switch to twoPhaseWalk */
+  else
+  {
+    TwoPhaseWalk();
   }
 
   bool left = (countLeft > 0);
@@ -404,3 +417,39 @@ void DropOffController::SetCurrentTimeInMilliSecs( long int time )
 {
   current_time = time;
 }
+
+/*********************************************************/
+/*       Two Phase Walk Implementation                   */
+/********************************************************/
+void DropOffController::TwoPhaseWalk()
+{  
+   if(state == 1)
+    {
+      //select new heading from Gaussian distribution around current heading
+      // just go whatever directio we are already facing
+      // This two phase walk implemetaion currentlocation is equivalent to the center location
+      searchLocation.theta = centerLocation.theta + rng->uniformReal(-M_PI/2.0, M_PI/2.0);
+      searchLocation.x = centerLocation.x + (2.5 * cos(searchLocation.theta));// 2 m
+      searchLocation.y = centerLocation.y + (2.5 * sin(searchLocation.theta));// 2 m
+      cout << "Rover is in Phase 1\n";
+      state = 2;
+      globalCounter = 0;
+    }
+
+    else if(state == 2)
+    {
+      searchLocation.theta = rng->gaussian(centerLocation.theta,1.5708); //90 degrees in radians
+      searchLocation.x = centerLocation.x + (0.3 * cos(searchLocation.theta));// 20 cm
+      searchLocation.y = centerLocation.y + (0.3 * sin(searchLocation.theta));// 20 cm
+      cout << "Rover is in Phase2\n";
+      globalCounter++;
+    }
+
+    if(globalCounter == 5)
+    {
+      state = 1;
+      cout << "Transitioning into Phase 1\n";
+    }
+   
+}
+ 

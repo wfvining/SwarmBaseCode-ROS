@@ -5,6 +5,7 @@
 #include "Controller.h"
 #include "Tag.h"
 #include <math.h>
+#include <random_numbers/random_numbers.h>
 
 class DropOffController : virtual Controller
 {
@@ -31,8 +32,14 @@ public:
 
   void SetCurrentTimeInMilliSecs( long int time );
 
+  
+
+
+  
 private:
 
+  
+  
   void ProcessData();
   void UpdateCenterLocation();
 
@@ -82,6 +89,7 @@ private:
   //Center and current locations as of the last call to setLocationData
   Point centerLocation;
   Point currentLocation;
+  Point searchLocation;
 
   //Time since modeTimer was started, in seconds
   float timerTimeElapsed;
@@ -123,5 +131,12 @@ private:
   bool finalInterrupt = false;
   bool first_center = true;
 
+  //Two Phase Walk Code
+  void TwoPhaseWalk();
+  random_numbers::RandomNumberGenerator* rng;
+  int state = 1;
+  int globalCounter = 0;
+
+ 
 };
 #endif // end header define
