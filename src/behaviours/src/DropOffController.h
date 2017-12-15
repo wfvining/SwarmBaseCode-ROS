@@ -5,6 +5,7 @@
 #include "Controller.h"
 #include "Tag.h"
 #include <math.h>
+#include <random_numbers/random_numbers.h>
 
 class DropOffController : virtual Controller
 {
@@ -44,12 +45,12 @@ private:
   const int lostCenterCutoff = 4; //seconds before giving up on drop off beacuse center cannot be seen anymore
   const float collectionPointVisualDistance = 0.2; //in meters
   const float initialSpinSize = 0.05; //in meters aka 10cm
-  const float spinSizeIncrement = 0.50; //in meters
+  const float spinSizeIncrement = 0.06; //in meters
   const float searchVelocity = 0.15; //in meters per second
   const float dropDelay = 0.5; //delay in seconds for dropOff
 
 
-
+  random_numbers::RandomNumberGenerator* rng;
   //Instance Variables
 
   /*
