@@ -148,7 +148,7 @@ void SearchController::TwoPhaseWalk()
    {      
       if(state == 1)
       {
-         double distance = GetExp(2.75);
+         double distance = 0.5+GetExp(2.25);
         //select new heading from Gaussian distribution around current heading
          // just go whatever directio we are already faing
          searchLocation.theta = currentLocation.theta + rng->uniformReal(-M_PI/2.0, M_PI/2.0);
